@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Parqueadero.Core/Parqueadero.Core.csproj" />
   <Project Path="Parqueadero.Web/Parqueadero.Web.csproj" />
 </Solution>
