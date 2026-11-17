@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Parqueadero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400&display=swap" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    @* La pantalla de inicio de sesión oculta el menú con ViewData["SinMenu"] = true *@
+    @{ var sinMenu = ViewData["SinMenu"] is true; }
+
+    <header class="barra">
+        @if (sinMenu)
+        {
+            <span></span>
+        }
+        else
+        {
+            <details class="menu">
+                <summary>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16" /></svg>
+                    Menú
+                </summary>
+                <ul class="menu__lista">
+                    <li><a asp-controller="Home" asp-action="Index">Panel</a></li>
+                    <li><a asp-controller="Movimientos" asp-action="Entrada">Registrar entrada</a></li>
+                    <li><a asp-controller="Movimientos" asp-action="Salida">Registrar salida</a></li>
+                    <li><a asp-controller="Admin" asp-action="Index">Administración</a></li>
+                    <li><a asp-controller="Cuenta" asp-action="Login">Cerrar sesión</a></li>
+                </ul>
+            </details>
+        }
+
+        <a class="barra__marca" asp-controller="Home" asp-action="Index">Parqueadero</a>
+
+        <span class="barra__rol">@ViewData["Rol"]</span>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    @if (!sinMenu)
+    {
+        <footer class="pie">
+            <strong>Parqueadero</strong>
+            <span>Lenguajes de Programación · Miniproyecto 2</span>
+        </footer>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

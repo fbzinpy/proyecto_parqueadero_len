@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Registrar entrada";
+    ViewData["Rol"] = "Operador";
+}
+
+<section class="seccion seccion--oscura">
+    <div class="contenedor pila">
+        <p class="antetitulo">18 cupos libres</p>
+        <h1 class="titulo-grande">Registrar<br />entrada</h1>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor">
+        @* El guardado se conectará con Parqueadero.Core más adelante. *@
+        <form class="formulario">
+            <div class="campo campo--placa">
+                <label class="etiqueta" for="placa">Placa</label>
+                <input id="placa" name="placa" type="text" placeholder="ABC 123" maxlength="7" />
+            </div>
+
+            <fieldset class="opciones">
+                <legend class="etiqueta">Tipo de vehículo</legend>
+                <label class="opcion">
+                    <input type="radio" name="tipo" value="Carro" checked />
+                    <span>Carro</span>
+                </label>
+                <label class="opcion">
+                    <input type="radio" name="tipo" value="Moto" />
+                    <span>Moto</span>
+                </label>
+            </fieldset>
+
+            <div class="campo">
+                <label class="etiqueta" for="cupo">Cupo asignado</label>
+                <select id="cupo" name="cupo">
+                    <option>A-04 · primer cupo libre</option>
+                    <option>A-07</option>
+                    <option>A-11</option>
+                </select>
+            </div>
+
+            <div class="tarjeta__fila tarjeta__fila--borde etiqueta">
+                <span>Hora de entrada</span>
+                <span>@DateTime.Now.ToString("HH:mm")</span>
+            </div>
+
+            <div>
+                <button type="button" class="boton-amarillo">Registrar entrada <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+    </div>
+</section>

@@ -1,0 +1,114 @@
+﻿@{
+    ViewData["Title"] = "Panel";
+    ViewData["Rol"] = "Operador";
+
+    // DATOS DE EJEMPLO: se reemplazarán por datos reales cuando exista Parqueadero.Core.
+    var totalCupos = 60;
+    var cuposCarro = 40;
+    var ocupados = new HashSet<int> { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 18, 19, 20, 21, 23, 24, 26, 27,
+                                      28, 30, 31, 33, 34, 35, 37, 38, 40, 41, 42, 44, 45, 47, 48, 50, 52, 53, 55, 56, 58 };
+    var porcentaje = ocupados.Count * 100 / totalCupos;
+
+    var vehiculos = new[]
+    {
+        (Placa: "ABC 123", Tipo: "Carro", Cupo: "A-01", Entrada: "07:42", Tiempo: "2 h 33 min"),
+        (Placa: "XYZ 45F", Tipo: "Moto",  Cupo: "M-03", Entrada: "08:10", Tiempo: "2 h 05 min"),
+        (Placa: "JKL 908", Tipo: "Carro", Cupo: "A-05", Entrada: "08:55", Tiempo: "1 h 20 min"),
+        (Placa: "QWE 321", Tipo: "Carro", Cupo: "A-08", Entrada: "09:30", Tiempo: "45 min"),
+        (Placa: "MNB 77C", Tipo: "Moto",  Cupo: "M-09", Entrada: "09:58", Tiempo: "17 min"),
+    };
+}
+
+<section class="seccion seccion--oscura">
+    <div class="contenedor pila">
+        <p class="antetitulo">Turno operador</p>
+        <h1 class="titulo-hero">@ocupados.Count de @totalCupos<br />cupos ocupados</h1>
+
+        <div class="pila" style="gap: 8px;">
+            <div class="ocupacion" role="img" aria-label="@porcentaje % de ocupación">
+                <div class="ocupacion__relleno" style="width: @porcentaje%;"></div>
+            </div>
+            <span class="etiqueta">@(totalCupos - ocupados.Count) cupos libres</span>
+        </div>
+
+        <div class="acciones" style="margin-top: 16px;">
+            <a class="boton-amarillo" asp-controller="Movimientos" asp-action="Entrada">Registrar entrada <span aria-hidden="true">→</span></a>
+            <a class="enlace-flecha enlace-flecha--grande" asp-controller="Movimientos" asp-action="Salida">Registrar salida <span aria-hidden="true">→</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor pila pila--amplia">
+        <div class="cabecera-seccion">
+            <h2 class="titulo-seccion">Vehículos dentro</h2>
+            <a class="enlace-flecha" href="#">Ver historial <span aria-hidden="true">→</span></a>
+        </div>
+
+        @* Los filtros y el buscador se harán funcionar cuando haya datos reales. *@
+        <div class="acciones" style="gap: 16px;">
+            <button type="button" class="boton-borde boton-borde--activo">Todos</button>
+            <button type="button" class="boton-borde">Carro</button>
+            <button type="button" class="boton-borde">Moto</button>
+            <label class="solo-lector" for="buscar">Buscar placa</label>
+            <input id="buscar" type="search" class="buscador" placeholder="Buscar placa" />
+        </div>
+
+        <div class="tabla-scroll">
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Placa</th>
+                        <th>Tipo</th>
+                        <th>Cupo</th>
+                        <th>Entrada</th>
+                        <th>Tiempo</th>
+                        <th><span class="solo-lector">Acción</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in vehiculos)
+                    {
+                        <tr>
+                            <td class="placa">@v.Placa</td>
+                            <td>@v.Tipo</td>
+                            <td>@v.Cupo</td>
+                            <td>@v.Entrada</td>
+                            <td>@v.Tiempo</td>
+                            <td class="derecha">
+                                <a class="enlace-flecha" asp-controller="Movimientos" asp-action="Salida">Dar salida <span aria-hidden="true">→</span></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="seccion seccion--gris">
+    <div class="contenedor pila pila--amplia">
+        <div class="cabecera-seccion">
+            <h2 class="titulo-seccion">Mapa de cupos</h2>
+            <div class="leyenda">
+                <span><span class="muestra muestra--ocupado"></span>Ocupado</span>
+                <span><span class="muestra"></span>Libre</span>
+            </div>
+        </div>
+
+        <ul class="cupos">
+            @for (var i = 0; i < totalCupos; i++)
+            {
+                var esCarro = i < cuposCarro;
+                var numero = (esCarro ? "A-" : "M-") + ((i % cuposCarro) + 1).ToString("00");
+                var estaOcupado = ocupados.Contains(i);
+
+                <li class="cupo @(estaOcupado ? "cupo--ocupado" : "")">
+                    <small>@(esCarro ? "Carro" : "Moto")</small>
+                    <span>@numero</span>
+                    <span class="solo-lector">@(estaOcupado ? "Ocupado" : "Libre")</span>
+                </li>
+            }
+        </ul>
+    </div>
+</section>

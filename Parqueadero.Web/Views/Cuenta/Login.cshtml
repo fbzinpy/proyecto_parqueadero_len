@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    ViewData["SinMenu"] = true;
+}
+
+<div class="acceso">
+    <section class="acceso__escenario">
+        <p class="antetitulo">Sistema de gestión · Miniproyecto 2</p>
+        <h1 class="titulo-hero">Cada cupo<br />bajo control</h1>
+        <p class="texto-destacado">Entradas, salidas, cobros y reportes en un solo lugar. Web y escritorio sobre la misma base de datos.</p>
+        <div class="pips" aria-hidden="true"><span></span><span></span></div>
+    </section>
+
+    <section class="acceso__formulario">
+        <div class="pila" style="gap: 8px;">
+            <p class="etiqueta">Acceso</p>
+            <h2 class="titulo-seccion">Iniciar sesión</h2>
+        </div>
+
+        @* El formulario se conectará con ASP.NET Core Identity más adelante.
+           Por ahora el botón solo lleva al panel. *@
+        <form class="formulario">
+            <div class="campo">
+                <label class="etiqueta" for="correo">Correo electrónico</label>
+                <input id="correo" name="correo" type="email" class="sin-mayusculas" placeholder="usuario@parqueadero.local" autocomplete="username" />
+            </div>
+            <div class="campo">
+                <label class="etiqueta" for="clave">Contraseña</label>
+                <input id="clave" name="clave" type="password" autocomplete="current-password" />
+            </div>
+            <label class="casilla">
+                <input type="checkbox" name="recordarme" /> Recordarme
+            </label>
+            <div>
+                <a class="boton-amarillo" asp-controller="Home" asp-action="Index">Ingresar <span aria-hidden="true">→</span></a>
+            </div>
+        </form>
+
+        <div class="roles">
+            <div class="pila" style="gap: 8px;">
+                <span class="etiqueta">Rol</span>
+                <span>Administrador</span>
+            </div>
+            <div class="pila" style="gap: 8px;">
+                <span class="etiqueta">Rol</span>
+                <span>Operador</span>
+            </div>
+        </div>
+    </section>
+</div>

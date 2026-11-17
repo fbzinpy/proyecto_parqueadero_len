@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "Administración";
+    ViewData["Rol"] = "Administrador";
+
+    // DATOS DE EJEMPLO: se reemplazarán por los usuarios de ASP.NET Core Identity.
+    var usuarios = new[]
+    {
+        (Nombre: "Administrador principal", Correo: "admin@parqueadero.local",     Rol: "Administrador"),
+        (Nombre: "Operador turno mañana",   Correo: "operador1@parqueadero.local", Rol: "Operador"),
+        (Nombre: "Operador turno tarde",    Correo: "operador2@parqueadero.local", Rol: "Operador"),
+    };
+}
+
+<section class="seccion seccion--oscura">
+    <div class="contenedor pila pila--amplia">
+        <div class="pila">
+            <p class="antetitulo">Resumen del día</p>
+            <h1 class="titulo-grande">Administración</h1>
+        </div>
+        <div class="datos">
+            <div class="dato">
+                <span class="etiqueta">Ingresos del día</span>
+                <span class="dato__valor dato__valor--medio">$ [Total]</span>
+            </div>
+            <div class="dato">
+                <span class="etiqueta">Vehículos atendidos</span>
+                <span class="dato__valor dato__valor--medio">[N]</span>
+            </div>
+            <div class="dato">
+                <span class="etiqueta">Ocupación actual</span>
+                <span class="dato__valor dato__valor--medio">42 / 60</span>
+            </div>
+            <div class="dato">
+                <span class="etiqueta">Operadores activos</span>
+                <span class="dato__valor dato__valor--medio">[N]</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor pila pila--amplia">
+        <div class="cabecera-seccion">
+            <h2 class="titulo-seccion">Tarifas</h2>
+            <a class="enlace-flecha" href="#">Editar tarifas <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="tarjetas">
+            <div class="tarjeta">
+                <span class="etiqueta">Vehículo</span>
+                <span class="dato__valor dato__valor--medio">Carro</span>
+                <div class="tarjeta__fila tarjeta__fila--borde"><span>Por hora</span><span>$ [Tarifa]</span></div>
+                <div class="tarjeta__fila"><span>Cupos</span><span>40</span></div>
+            </div>
+            <div class="tarjeta">
+                <span class="etiqueta">Vehículo</span>
+                <span class="dato__valor dato__valor--medio">Moto</span>
+                <div class="tarjeta__fila tarjeta__fila--borde"><span>Por hora</span><span>$ [Tarifa]</span></div>
+                <div class="tarjeta__fila"><span>Cupos</span><span>20</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="seccion seccion--gris">
+    <div class="contenedor pila pila--amplia">
+        <div class="cabecera-seccion">
+            <h2 class="titulo-seccion">Usuarios y roles</h2>
+            <button type="button" class="boton-amarillo">Nuevo usuario <span aria-hidden="true">+</span></button>
+        </div>
+        <div class="tabla-scroll">
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th><span class="solo-lector">Acción</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in usuarios)
+                    {
+                        <tr>
+                            <td>@u.Nombre</td>
+                            <td class="sin-mayusculas">@u.Correo</td>
+                            <td><span class="insignia">@u.Rol</span></td>
+                            <td class="derecha"><a class="enlace-flecha" href="#">Editar <span aria-hidden="true">→</span></a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
