@@ -29,15 +29,6 @@ public class AdminController : Controller
         return View(await CrearModeloAsync());
     }
 
-    // Botón "Comparar estructuras": mide los tiempos y vuelve a mostrar la misma pantalla con la tabla.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Comparar()
-    {
-        ViewData["Comparacion"] = ComparacionEstructuras.Ejecutar();
-        return View("Index", await CrearModeloAsync());
-    }
-
     private async Task<AdminViewModel> CrearModeloAsync()
     {
         EstadoParqueadero estado = _servicio.CargarEstado();

@@ -1,9 +1,6 @@
 @model AdminViewModel
 @{
     ViewData["Title"] = "Administración";
-
-    // Solo tiene datos después de presionar "Comparar estructuras" (AdminController.Comparar).
-    var comparacion = ViewData["Comparacion"] as List<Parqueadero.Core.Servicios.ResultadoComparacion>;
 }
 
 <section class="seccion seccion--oscura">
@@ -80,49 +77,5 @@
                 </tbody>
             </table>
         </div>
-    </div>
-</section>
-
-<section class="seccion" id="estructuras">
-    <div class="contenedor pila pila--amplia">
-        <div class="cabecera-seccion">
-            <h2 class="titulo-seccion">Estructuras de datos</h2>
-            <form asp-action="Comparar" asp-fragment="estructuras" method="post">
-                <button type="submit" class="boton-amarillo">Comparar estructuras <span aria-hidden="true">→</span></button>
-            </form>
-        </div>
-        <p>
-            Tiempo de @Parqueadero.Core.Servicios.ComparacionEstructuras.CantidadBusquedas.ToString("N0") búsquedas
-            sobre @Parqueadero.Core.Servicios.ComparacionEstructuras.CantidadElementos.ToString("N0") elementos,
-            medido con Stopwatch. Cada vez que se presiona el botón da valores un poco distintos.
-        </p>
-        @if (comparacion != null)
-        {
-            <div class="tabla-scroll">
-                <table class="tabla">
-                    <thead>
-                        <tr>
-                            <th>Operación</th>
-                            <th>Elegida</th>
-                            <th class="derecha">ms</th>
-                            <th>Alternativa</th>
-                            <th class="derecha">ms</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var r in comparacion)
-                        {
-                            <tr>
-                                <td>@r.Operacion</td>
-                                <td><span class="insignia">@r.Elegida</span></td>
-                                <td class="derecha">@r.MilisegundosElegida.ToString("N3")</td>
-                                <td>@r.Alternativa</td>
-                                <td class="derecha">@r.MilisegundosAlternativa.ToString("N3")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
     </div>
 </section>
