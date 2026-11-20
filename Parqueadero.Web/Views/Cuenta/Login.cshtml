@@ -17,22 +17,26 @@
             <h2 class="titulo-seccion">Iniciar sesión</h2>
         </div>
 
-        @* El formulario se conectará con ASP.NET Core Identity más adelante.
-           Por ahora el botón solo lleva al panel. *@
-        <form class="formulario">
+        @* Envía correo y clave a CuentaController.Login (POST), que usa ASP.NET Core Identity.
+           El tag helper del form agrega solo el token antifalsificación. *@
+        <form class="formulario" asp-controller="Cuenta" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+            @if (ViewData["Error"] != null)
+            {
+                <p class="mensaje-error">@ViewData["Error"]</p>
+            }
             <div class="campo">
                 <label class="etiqueta" for="correo">Correo electrónico</label>
-                <input id="correo" name="correo" type="email" class="sin-mayusculas" placeholder="usuario@parqueadero.local" autocomplete="username" />
+                <input id="correo" name="correo" type="email" class="sin-mayusculas" placeholder="usuario@parqueadero.local" autocomplete="username" value="@ViewData["Correo"]" required />
             </div>
             <div class="campo">
                 <label class="etiqueta" for="clave">Contraseña</label>
-                <input id="clave" name="clave" type="password" autocomplete="current-password" />
+                <input id="clave" name="clave" type="password" autocomplete="current-password" required />
             </div>
             <label class="casilla">
-                <input type="checkbox" name="recordarme" /> Recordarme
+                <input type="checkbox" name="recordarme" value="true" /> Recordarme
             </label>
             <div>
-                <a class="boton-amarillo" asp-controller="Home" asp-action="Index">Ingresar <span aria-hidden="true">→</span></a>
+                <button type="submit" class="boton-amarillo">Ingresar <span aria-hidden="true">→</span></button>
             </div>
         </form>
 

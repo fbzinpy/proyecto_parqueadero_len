@@ -160,6 +160,32 @@ button {
 .menu__lista a:hover {
   color: var(--amarillo);
 }
+/* "Cerrar sesión" es un botón (va por POST) pero se ve igual que los enlaces del menú */
+.menu__boton {
+  display: block;
+  width: 100%;
+  padding: var(--e-8) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 18px;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.menu__boton:hover {
+  color: var(--amarillo);
+}
+/* Mensaje de error del inicio de sesión */
+.mensaje-error {
+  margin: 0;
+  padding: var(--e-8) var(--e-16);
+  border-left: 3px solid var(--amarillo);
+  background: var(--negro-profundo);
+  color: var(--blanco);
+}
 
 /* ---------- Secciones ---------- */
 .contenedor {

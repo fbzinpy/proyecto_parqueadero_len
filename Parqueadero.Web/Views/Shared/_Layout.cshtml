@@ -11,7 +11,12 @@
 </head>
 <body>
     @* La pantalla de inicio de sesión oculta el menú con ViewData["SinMenu"] = true *@
-    @{ var sinMenu = ViewData["SinMenu"] is true; }
+    @{
+        var sinMenu = ViewData["SinMenu"] is true;
+        var esAdmin = User.IsInRole("Administrador");
+        // El rol que se muestra arriba a la derecha sale del usuario que inició sesión.
+        var rol = esAdmin ? "Administrador" : User.IsInRole("Operador") ? "Operador" : "";
+    }
 
     <header class="barra">
         @if (sinMenu)
@@ -29,15 +34,24 @@
                     <li><a asp-controller="Home" asp-action="Index">Panel</a></li>
                     <li><a asp-controller="Movimientos" asp-action="Entrada">Registrar entrada</a></li>
                     <li><a asp-controller="Movimientos" asp-action="Salida">Registrar salida</a></li>
-                    <li><a asp-controller="Admin" asp-action="Index">Administración</a></li>
-                    <li><a asp-controller="Cuenta" asp-action="Login">Cerrar sesión</a></li>
+                    @* Solo el Administrador ve esta opción del menú *@
+                    @if (esAdmin)
+                    {
+                        <li><a asp-controller="Admin" asp-action="Index">Administración</a></li>
+                    }
+                    <li>
+                        @* Cerrar sesión va por POST (formulario) para que otra página no pueda cerrarla con un simple enlace *@
+                        <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post">
+                            <button type="submit" class="menu__boton">Cerrar sesión</button>
+                        </form>
+                    </li>
                 </ul>
             </details>
         }
 
         <a class="barra__marca" asp-controller="Home" asp-action="Index">Parqueadero</a>
 
-        <span class="barra__rol">@ViewData["Rol"]</span>
+        <span class="barra__rol">@rol</span>
     </header>
 
     <main>

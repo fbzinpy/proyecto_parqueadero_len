@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Parqueadero.Web.Models;
 
@@ -6,7 +7,8 @@ namespace Parqueadero.Web.Controllers;
 
 public class HomeController : Controller
 {
-    // Panel del operador: ocupación, vehículos dentro y mapa de cupos.
+    // Panel del operador: ocupación, vehículos dentro y mapa de cupos. Pueden entrar los dos roles.
+    [Authorize(Roles = "Administrador,Operador")]
     public IActionResult Index()
     {
         return View();
