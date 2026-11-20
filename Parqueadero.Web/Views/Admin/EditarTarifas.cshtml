@@ -1,0 +1,39 @@
+@model List<Tarifa>
+@{
+    ViewData["Title"] = "Editar tarifas";
+    var carro = Model.FirstOrDefault(t => t.Tipo == TipoVehiculo.Carro)?.ValorHora ?? 0;
+    var moto = Model.FirstOrDefault(t => t.Tipo == TipoVehiculo.Moto)?.ValorHora ?? 0;
+}
+
+<section class="seccion seccion--oscura">
+    <div class="contenedor pila">
+        <p class="antetitulo">Administración</p>
+        <h1 class="titulo-grande">Editar<br />tarifas</h1>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor">
+        <form class="formulario" asp-action="EditarTarifas" method="post">
+            @if (ViewData["Error"] != null)
+            {
+                <p class="mensaje" role="alert">@ViewData["Error"]</p>
+            }
+
+            @* step="1": valores en pesos enteros *@
+            <div class="campo">
+                <label class="etiqueta" for="valorCarro">Carro · valor por hora ($)</label>
+                <input id="valorCarro" name="valorCarro" type="number" min="1" step="1" value="@carro.ToString("0")" required />
+            </div>
+            <div class="campo">
+                <label class="etiqueta" for="valorMoto">Moto · valor por hora ($)</label>
+                <input id="valorMoto" name="valorMoto" type="number" min="1" step="1" value="@moto.ToString("0")" required />
+            </div>
+
+            <div class="acciones">
+                <a class="enlace-flecha enlace-flecha--grande" asp-action="Index">Cancelar</a>
+                <button type="submit" class="boton-amarillo">Guardar tarifas <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+    </div>
+</section>

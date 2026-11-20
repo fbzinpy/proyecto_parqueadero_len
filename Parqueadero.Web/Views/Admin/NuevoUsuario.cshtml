@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Nuevo usuario";
+    var roles = (string[])ViewData["Roles"]!;
+    var rolElegido = ViewData["Rol"] as string ?? "Operador";
+}
+
+<section class="seccion seccion--oscura">
+    <div class="contenedor pila">
+        <p class="antetitulo">Administración</p>
+        <h1 class="titulo-grande">Nuevo<br />usuario</h1>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor">
+        <form class="formulario" asp-action="NuevoUsuario" method="post">
+            @if (ViewData["Error"] != null)
+            {
+                <p class="mensaje" role="alert">@ViewData["Error"]</p>
+            }
+
+            <div class="campo">
+                <label class="etiqueta" for="correo">Correo electrónico</label>
+                <input id="correo" name="correo" type="email" class="sin-mayusculas" value="@ViewData["Correo"]" required autocomplete="off" />
+            </div>
+            <div class="campo">
+                <label class="etiqueta" for="clave">Contraseña</label>
+                <input id="clave" name="clave" type="password" required autocomplete="new-password" />
+                <small>Mínimo 6 caracteres, con mayúscula, minúscula, número y símbolo.</small>
+            </div>
+
+            <fieldset class="opciones">
+                <legend class="etiqueta">Rol</legend>
+                @foreach (var rol in roles)
+                {
+                    <label class="opcion">
+                        <input type="radio" name="rol" value="@rol" checked="@(rol == rolElegido)" />
+                        <span>@rol</span>
+                    </label>
+                }
+            </fieldset>
+
+            <div class="acciones">
+                <a class="enlace-flecha enlace-flecha--grande" asp-action="Index">Cancelar</a>
+                <button type="submit" class="boton-amarillo">Crear usuario <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+    </div>
+</section>

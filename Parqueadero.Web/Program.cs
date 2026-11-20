@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Parqueadero.Core.Datos;
+using Parqueadero.Core.Servicios;
 using Parqueadero.Web.Datos;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,9 @@ builder.Services.AddControllersWithViews();
 // Base de datos SQLite compartida con la aplicación de escritorio.
 builder.Services.AddDbContext<ParqueaderoDbContext>(opciones =>
     opciones.UseSqlite(RutaBaseDatos.CadenaConexion()));
+
+// Lógica del parqueadero (de Core). Scoped: uno por cada petición, igual que el DbContext.
+builder.Services.AddScoped<ServicioParqueadero>();
 
 // ASP.NET Core Identity: usuarios y roles guardados en la misma base de datos.
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()

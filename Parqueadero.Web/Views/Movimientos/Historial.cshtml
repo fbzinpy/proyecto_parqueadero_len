@@ -1,0 +1,52 @@
+@model List<Ticket>
+@{
+    ViewData["Title"] = "Historial";
+}
+
+<section class="seccion seccion--oscura">
+    <div class="contenedor pila">
+        <p class="antetitulo">@Model.Count salidas registradas</p>
+        <h1 class="titulo-grande">Historial</h1>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor pila pila--amplia">
+        @if (Model.Count == 0)
+        {
+            <p>Todavía no hay salidas registradas.</p>
+        }
+        else
+        {
+            <div class="tabla-scroll">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Tipo</th>
+                            <th>Cupo</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                            <th>Tiempo</th>
+                            <th class="derecha">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model)
+                        {
+                            <tr>
+                                <td class="placa">@t.Placa</td>
+                                <td>@t.Tipo</td>
+                                <td>@t.Cupo?.Codigo</td>
+                                <td>@t.HoraEntrada.ToString("dd/MM HH:mm")</td>
+                                <td>@t.HoraSalida?.ToString("dd/MM HH:mm")</td>
+                                <td>@Formato.Duracion(t.HoraSalida!.Value - t.HoraEntrada)</td>
+                                <td class="derecha">@Formato.Dinero(t.Total ?? 0)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

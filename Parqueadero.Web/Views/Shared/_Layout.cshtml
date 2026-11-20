@@ -34,6 +34,7 @@
                     <li><a asp-controller="Home" asp-action="Index">Panel</a></li>
                     <li><a asp-controller="Movimientos" asp-action="Entrada">Registrar entrada</a></li>
                     <li><a asp-controller="Movimientos" asp-action="Salida">Registrar salida</a></li>
+                    <li><a asp-controller="Movimientos" asp-action="Historial">Historial</a></li>
                     @* Solo el Administrador ve esta opción del menú *@
                     @if (esAdmin)
                     {
@@ -55,6 +56,13 @@
     </header>
 
     <main>
+        @* Mensaje de confirmación que dejan los controladores con TempData antes de redirigir *@
+        @if (TempData["Mensaje"] is string mensaje)
+        {
+            <div class="contenedor aviso-contenedor">
+                <p class="mensaje" role="status">@mensaje</p>
+            </div>
+        }
         @RenderBody()
     </main>
 

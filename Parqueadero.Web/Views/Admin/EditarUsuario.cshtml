@@ -1,0 +1,46 @@
+@model Microsoft.AspNetCore.Identity.IdentityUser
+@{
+    ViewData["Title"] = "Editar usuario";
+    var roles = (string[])ViewData["Roles"]!;
+    var rolElegido = ViewData["Rol"] as string;
+}
+
+<section class="seccion seccion--oscura">
+    <div class="contenedor pila">
+        <p class="antetitulo sin-mayusculas">@Model.Email</p>
+        <h1 class="titulo-grande">Editar<br />usuario</h1>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor">
+        <form class="formulario" asp-action="EditarUsuario" asp-route-id="@Model.Id" method="post">
+            @if (ViewData["Error"] != null)
+            {
+                <p class="mensaje" role="alert">@ViewData["Error"]</p>
+            }
+
+            <fieldset class="opciones">
+                <legend class="etiqueta">Rol</legend>
+                @foreach (var rol in roles)
+                {
+                    <label class="opcion">
+                        <input type="radio" name="rol" value="@rol" checked="@(rol == rolElegido)" />
+                        <span>@rol</span>
+                    </label>
+                }
+            </fieldset>
+
+            <div class="campo">
+                <label class="etiqueta" for="clave">Nueva contraseña (opcional)</label>
+                <input id="clave" name="clave" type="password" autocomplete="new-password" />
+                <small>Déjala vacía para no cambiarla.</small>
+            </div>
+
+            <div class="acciones">
+                <a class="enlace-flecha enlace-flecha--grande" asp-action="Index">Cancelar</a>
+                <button type="submit" class="boton-amarillo">Guardar cambios <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+    </div>
+</section>

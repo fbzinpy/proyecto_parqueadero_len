@@ -1,51 +1,75 @@
+@model SalidaViewModel
 @{
     ViewData["Title"] = "Registrar salida";
+    var t = Model.Ticket;
 }
-
-@* DATOS DE EJEMPLO: la búsqueda y el cálculo del cobro vendrán de Parqueadero.Core. *@
 
 <section class="seccion seccion--oscura">
     <div class="contenedor pila">
-        <p class="antetitulo">Registrar salida · Carro · Cupo A-01</p>
-        <h1 class="titulo-hero">ABC 123</h1>
+        @if (t != null)
+        {
+            <p class="antetitulo">Registrar salida · @t.Tipo · Cupo @t.Cupo?.Codigo</p>
+            <h1 class="titulo-hero">@t.Placa</h1>
+        }
+        else
+        {
+            <p class="antetitulo">Busca el vehículo por su placa</p>
+            <h1 class="titulo-grande">Registrar<br />salida</h1>
+        }
 
-        <form class="acciones" style="align-items: flex-end; gap: 24px; margin-top: 24px; max-width: 560px;">
+        @* Buscar: formulario GET a Salida?placa=... *@
+        <form class="acciones" method="get" asp-action="Salida" style="align-items: flex-end; gap: 24px; margin-top: 24px; max-width: 560px;">
             <div class="campo" style="flex: 1 1 240px;">
-                <label class="etiqueta" for="placa">Buscar otra placa</label>
-                <input id="placa" name="placa" type="text" value="ABC 123" />
+                <label class="etiqueta" for="placa">@(t != null ? "Buscar otra placa" : "Placa")</label>
+                <input id="placa" name="placa" type="text" maxlength="8" value="@Model.Placa" required autocomplete="off" autofocus="@(t == null)" />
             </div>
-            <button type="button" class="boton-borde">Buscar</button>
+            <button type="submit" class="boton-borde">Buscar</button>
         </form>
+
+        @if (Model.Error != null)
+        {
+            <p class="mensaje" role="alert">@Model.Error</p>
+        }
     </div>
 </section>
 
-<section class="seccion">
-    <div class="contenedor pila" style="gap: 64px;">
-        <div class="datos">
-            <div class="dato">
-                <span class="etiqueta">Hora de entrada</span>
-                <span class="dato__valor">07:42</span>
+@if (t != null)
+{
+    <section class="seccion">
+        <div class="contenedor pila" style="gap: 64px;">
+            <div class="datos">
+                <div class="dato">
+                    <span class="etiqueta">Hora de entrada</span>
+                    <span class="dato__valor">@t.HoraEntrada.ToString("HH:mm")</span>
+                </div>
+                <div class="dato">
+                    <span class="etiqueta">Hora de salida</span>
+                    <span class="dato__valor">@Model.HoraSalida.ToString("HH:mm")</span>
+                </div>
+                <div class="dato">
+                    <span class="etiqueta">Tiempo total</span>
+                    <span class="dato__valor">@Formato.Duracion(Model.HoraSalida - t.HoraEntrada)</span>
+                </div>
             </div>
-            <div class="dato">
-                <span class="etiqueta">Hora de salida</span>
-                <span class="dato__valor">10:15</span>
-            </div>
-            <div class="dato">
-                <span class="etiqueta">Tiempo total</span>
-                <span class="dato__valor">2 h 33 min</span>
-            </div>
-        </div>
 
-        <div class="total">
-            <div class="pila" style="gap: 16px;">
-                <span class="etiqueta">Tarifa carro · $ [Tarifa] por hora · 3 horas cobradas</span>
-                <span class="etiqueta" style="font-size: 16px;">Total a pagar</span>
-                <span class="total__valor">$ [Total]</span>
-            </div>
-            <div class="acciones">
-                <a class="enlace-flecha enlace-flecha--grande" asp-controller="Home" asp-action="Index">Cancelar</a>
-                <button type="button" class="boton-amarillo">Cobrar y dar salida <span aria-hidden="true">→</span></button>
+            <div class="total">
+                <div class="pila" style="gap: 16px;">
+                    <span class="etiqueta">
+                        Tarifa @t.Tipo.ToString().ToLower() · @Formato.Dinero(Model.ValorHora) por hora ·
+                        @Model.HorasCobradas @(Model.HorasCobradas == 1 ? "hora cobrada" : "horas cobradas")
+                    </span>
+                    <span class="etiqueta" style="font-size: 16px;">Total a pagar</span>
+                    <span class="total__valor">@Formato.Dinero(Model.Total)</span>
+                </div>
+                <div class="acciones">
+                    <a class="enlace-flecha enlace-flecha--grande" asp-controller="Home" asp-action="Index">Cancelar</a>
+                    @* El total final se calcula de nuevo al confirmar, con la hora exacta de ese momento *@
+                    <form asp-action="Salida" method="post">
+                        <input type="hidden" name="placa" value="@t.Placa" />
+                        <button type="submit" class="boton-amarillo">Cobrar y dar salida <span aria-hidden="true">→</span></button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}

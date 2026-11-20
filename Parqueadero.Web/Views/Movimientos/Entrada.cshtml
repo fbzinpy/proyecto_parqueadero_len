@@ -1,41 +1,53 @@
+@model EntradaViewModel
 @{
     ViewData["Title"] = "Registrar entrada";
+
+    var libresCarro = Model.CuposLibres.Count(c => c.Tipo == TipoVehiculo.Carro);
+    var libresMoto = Model.CuposLibres.Count(c => c.Tipo == TipoVehiculo.Moto);
 }
 
 <section class="seccion seccion--oscura">
     <div class="contenedor pila">
-        <p class="antetitulo">18 cupos libres</p>
+        <p class="antetitulo">@libresCarro cupos libres para carro · @libresMoto para moto</p>
         <h1 class="titulo-grande">Registrar<br />entrada</h1>
     </div>
 </section>
 
 <section class="seccion">
     <div class="contenedor">
-        @* El guardado se conectará con Parqueadero.Core más adelante. *@
-        <form class="formulario">
+        @* Se envía a MovimientosController.Entrada (POST), que usa ServicioParqueadero de Core *@
+        <form class="formulario" asp-action="Entrada" method="post">
+            @if (Model.Error != null)
+            {
+                <p class="mensaje" role="alert">@Model.Error</p>
+            }
+
             <div class="campo campo--placa">
                 <label class="etiqueta" for="placa">Placa</label>
-                <input id="placa" name="placa" type="text" placeholder="ABC 123" maxlength="7" />
+                <input id="placa" name="placa" type="text" placeholder="ABC 123" maxlength="8" value="@Model.Placa" required autofocus autocomplete="off" />
             </div>
 
             <fieldset class="opciones">
                 <legend class="etiqueta">Tipo de vehículo</legend>
                 <label class="opcion">
-                    <input type="radio" name="tipo" value="Carro" checked />
+                    <input type="radio" name="tipo" value="Carro" checked="@(Model.Tipo == TipoVehiculo.Carro)" />
                     <span>Carro</span>
                 </label>
                 <label class="opcion">
-                    <input type="radio" name="tipo" value="Moto" />
+                    <input type="radio" name="tipo" value="Moto" checked="@(Model.Tipo == TipoVehiculo.Moto)" />
                     <span>Moto</span>
                 </label>
             </fieldset>
 
             <div class="campo">
                 <label class="etiqueta" for="cupo">Cupo asignado</label>
-                <select id="cupo" name="cupo">
-                    <option>A-04 · primer cupo libre</option>
-                    <option>A-07</option>
-                    <option>A-11</option>
+                <select id="cupo" name="cupoId">
+                    @* value vacío = el sistema asigna el primer cupo libre *@
+                    <option value="">Automático · primer cupo libre</option>
+                    @foreach (var cupo in Model.CuposLibres)
+                    {
+                        <option value="@cupo.Id" data-tipo="@cupo.Tipo" selected="@(Model.CupoId == cupo.Id)">@cupo.Codigo</option>
+                    }
                 </select>
             </div>
 
@@ -45,8 +57,33 @@
             </div>
 
             <div>
-                <button type="button" class="boton-amarillo">Registrar entrada <span aria-hidden="true">→</span></button>
+                <button type="submit" class="boton-amarillo">Registrar entrada <span aria-hidden="true">→</span></button>
             </div>
         </form>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        // Muestra en la lista solo los cupos del tipo elegido (Carro o Moto).
+        // Si el cupo seleccionado queda oculto, vuelve a "Automático".
+        (function () {
+            const select = document.getElementById('cupo');
+            const radios = document.querySelectorAll('input[name="tipo"]');
+
+            function filtrarCupos() {
+                const tipo = document.querySelector('input[name="tipo"]:checked').value;
+                for (const opcion of select.options) {
+                    if (!opcion.dataset.tipo) continue; // la opción "Automático" siempre se ve
+                    const visible = opcion.dataset.tipo === tipo;
+                    opcion.hidden = !visible;
+                    opcion.disabled = !visible;
+                    if (!visible && opcion.selected) select.value = '';
+                }
+            }
+
+            radios.forEach(r => r.addEventListener('change', filtrarCupos));
+            filtrarCupos();
+        })();
+    </script>
+}

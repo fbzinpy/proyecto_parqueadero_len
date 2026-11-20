@@ -178,8 +178,11 @@ button {
 .menu__boton:hover {
   color: var(--amarillo);
 }
-/* Mensaje de error del inicio de sesión */
-.mensaje-error {
+/* Mensajes de error y de confirmación (borde amarillo sobre fondo oscuro) */
+.aviso-contenedor {
+  padding-top: var(--e-24);
+}
+.mensaje {
   margin: 0;
   padding: var(--e-8) var(--e-16);
   border-left: 3px solid var(--amarillo);
@@ -295,6 +298,8 @@ button {
 }
 
 .boton-borde {
+  display: inline-flex; /* para que también se vea bien cuando es un enlace <a> */
+  align-items: center;
   min-height: 44px;
   padding: var(--e-8) var(--e-24);
   border: 1px solid var(--gris-medio);
@@ -418,8 +423,11 @@ button {
   outline-offset: 2px;
 }
 
-.buscador {
+/* Formulario del buscador de placas: va a la derecha de los filtros */
+.buscador-form {
   margin-left: auto;
+}
+.buscador {
   min-width: 220px;
   height: 44px;
   border: 0;
@@ -729,6 +737,7 @@ button {
     min-height: 320px;
   }
 
+  .buscador-form,
   .buscador {
     margin-left: 0;
     width: 100%;

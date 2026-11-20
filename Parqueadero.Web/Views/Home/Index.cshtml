@@ -1,33 +1,22 @@
-﻿@{
+﻿@model PanelViewModel
+@{
     ViewData["Title"] = "Panel";
 
-    // DATOS DE EJEMPLO: se reemplazarán por datos reales cuando exista Parqueadero.Core.
-    var totalCupos = 60;
-    var cuposCarro = 40;
-    var ocupados = new HashSet<int> { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 18, 19, 20, 21, 23, 24, 26, 27,
-                                      28, 30, 31, 33, 34, 35, 37, 38, 40, 41, 42, 44, 45, 47, 48, 50, 52, 53, 55, 56, 58 };
-    var porcentaje = ocupados.Count * 100 / totalCupos;
-
-    var vehiculos = new[]
-    {
-        (Placa: "ABC 123", Tipo: "Carro", Cupo: "A-01", Entrada: "07:42", Tiempo: "2 h 33 min"),
-        (Placa: "XYZ 45F", Tipo: "Moto",  Cupo: "M-03", Entrada: "08:10", Tiempo: "2 h 05 min"),
-        (Placa: "JKL 908", Tipo: "Carro", Cupo: "A-05", Entrada: "08:55", Tiempo: "1 h 20 min"),
-        (Placa: "QWE 321", Tipo: "Carro", Cupo: "A-08", Entrada: "09:30", Tiempo: "45 min"),
-        (Placa: "MNB 77C", Tipo: "Moto",  Cupo: "M-09", Entrada: "09:58", Tiempo: "17 min"),
-    };
+    var libres = Model.TotalCupos - Model.CuposOcupados;
+    var porcentaje = Model.TotalCupos == 0 ? 0 : Model.CuposOcupados * 100 / Model.TotalCupos;
+    var ahora = DateTime.Now;
 }
 
 <section class="seccion seccion--oscura">
     <div class="contenedor pila">
         <p class="antetitulo">Turno operador</p>
-        <h1 class="titulo-hero">@ocupados.Count de @totalCupos<br />cupos ocupados</h1>
+        <h1 class="titulo-hero">@Model.CuposOcupados de @Model.TotalCupos<br />cupos ocupados</h1>
 
         <div class="pila" style="gap: 8px;">
             <div class="ocupacion" role="img" aria-label="@porcentaje % de ocupación">
                 <div class="ocupacion__relleno" style="width: @porcentaje%;"></div>
             </div>
-            <span class="etiqueta">@(totalCupos - ocupados.Count) cupos libres</span>
+            <span class="etiqueta">@libres cupos libres</span>
         </div>
 
         <div class="acciones" style="margin-top: 16px;">
@@ -37,51 +26,69 @@
     </div>
 </section>
 
-<section class="seccion">
+<section class="seccion" id="vehiculos">
     <div class="contenedor pila pila--amplia">
         <div class="cabecera-seccion">
             <h2 class="titulo-seccion">Vehículos dentro</h2>
-            <a class="enlace-flecha" href="#">Ver historial <span aria-hidden="true">→</span></a>
+            <a class="enlace-flecha" asp-controller="Movimientos" asp-action="Historial">Ver historial <span aria-hidden="true">→</span></a>
         </div>
 
-        @* Los filtros y el buscador se harán funcionar cuando haya datos reales. *@
+        @* Filtros: cada botón es un enlace que recarga el panel con ?tipo=... (se conserva lo buscado) *@
         <div class="acciones" style="gap: 16px;">
-            <button type="button" class="boton-borde boton-borde--activo">Todos</button>
-            <button type="button" class="boton-borde">Carro</button>
-            <button type="button" class="boton-borde">Moto</button>
-            <label class="solo-lector" for="buscar">Buscar placa</label>
-            <input id="buscar" type="search" class="buscador" placeholder="Buscar placa" />
+            <a class="boton-borde @(Model.FiltroTipo == null ? "boton-borde--activo" : "")"
+               asp-action="Index" asp-route-buscar="@Model.Buscar" asp-fragment="vehiculos">Todos</a>
+            <a class="boton-borde @(Model.FiltroTipo == "Carro" ? "boton-borde--activo" : "")"
+               asp-action="Index" asp-route-tipo="Carro" asp-route-buscar="@Model.Buscar" asp-fragment="vehiculos">Carro</a>
+            <a class="boton-borde @(Model.FiltroTipo == "Moto" ? "boton-borde--activo" : "")"
+               asp-action="Index" asp-route-tipo="Moto" asp-route-buscar="@Model.Buscar" asp-fragment="vehiculos">Moto</a>
+
+            @* Buscador: formulario GET, la placa viaja en la URL (?buscar=ABC) *@
+            <form class="buscador-form" method="get" asp-action="Index" asp-fragment="vehiculos">
+                @if (Model.FiltroTipo != null)
+                {
+                    <input type="hidden" name="tipo" value="@Model.FiltroTipo" />
+                }
+                <label class="solo-lector" for="buscar">Buscar placa</label>
+                <input id="buscar" name="buscar" type="search" class="buscador" placeholder="Buscar placa" value="@Model.Buscar" />
+            </form>
         </div>
 
-        <div class="tabla-scroll">
-            <table class="tabla">
-                <thead>
-                    <tr>
-                        <th>Placa</th>
-                        <th>Tipo</th>
-                        <th>Cupo</th>
-                        <th>Entrada</th>
-                        <th>Tiempo</th>
-                        <th><span class="solo-lector">Acción</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var v in vehiculos)
-                    {
+        @if (Model.VehiculosAdentro.Count == 0)
+        {
+            <p>@(Model.CuposOcupados == 0 ? "No hay vehículos adentro." : "Ningún vehículo coincide con el filtro.")</p>
+        }
+        else
+        {
+            <div class="tabla-scroll">
+                <table class="tabla">
+                    <thead>
                         <tr>
-                            <td class="placa">@v.Placa</td>
-                            <td>@v.Tipo</td>
-                            <td>@v.Cupo</td>
-                            <td>@v.Entrada</td>
-                            <td>@v.Tiempo</td>
-                            <td class="derecha">
-                                <a class="enlace-flecha" asp-controller="Movimientos" asp-action="Salida">Dar salida <span aria-hidden="true">→</span></a>
-                            </td>
+                            <th>Placa</th>
+                            <th>Tipo</th>
+                            <th>Cupo</th>
+                            <th>Entrada</th>
+                            <th>Tiempo</th>
+                            <th><span class="solo-lector">Acción</span></th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model.VehiculosAdentro)
+                        {
+                            <tr>
+                                <td class="placa">@t.Placa</td>
+                                <td>@t.Tipo</td>
+                                <td>@t.Cupo?.Codigo</td>
+                                <td>@t.HoraEntrada.ToString("HH:mm")</td>
+                                <td>@Formato.Duracion(ahora - t.HoraEntrada)</td>
+                                <td class="derecha">
+                                    <a class="enlace-flecha" asp-controller="Movimientos" asp-action="Salida" asp-route-placa="@t.Placa">Dar salida <span aria-hidden="true">→</span></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </section>
 
@@ -96,15 +103,13 @@
         </div>
 
         <ul class="cupos">
-            @for (var i = 0; i < totalCupos; i++)
+            @foreach (var cupo in Model.Cupos)
             {
-                var esCarro = i < cuposCarro;
-                var numero = (esCarro ? "A-" : "M-") + ((i % cuposCarro) + 1).ToString("00");
-                var estaOcupado = ocupados.Contains(i);
+                var estaOcupado = Model.IdsOcupados.Contains(cupo.Id);
 
                 <li class="cupo @(estaOcupado ? "cupo--ocupado" : "")">
-                    <small>@(esCarro ? "Carro" : "Moto")</small>
-                    <span>@numero</span>
+                    <small>@cupo.Tipo</small>
+                    <span>@cupo.Codigo</span>
                     <span class="solo-lector">@(estaOcupado ? "Ocupado" : "Libre")</span>
                 </li>
             }
