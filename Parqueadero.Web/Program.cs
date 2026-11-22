@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Parqueadero.Core.Datos;
 using Parqueadero.Core.Servicios;
-using Parqueadero.Web.Datos;
 
 var builder = WebApplication.CreateBuilder(args);
 

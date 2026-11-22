@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Parqueadero.Core.Entidades;
 using Parqueadero.Core.Servicios;
-using Parqueadero.Web.Datos;
+using Parqueadero.Core.Datos;
 using Parqueadero.Web.Models;
 
 namespace Parqueadero.Web.Controllers;

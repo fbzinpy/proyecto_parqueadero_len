@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Parqueadero.Web.Datos;
+namespace Parqueadero.Core.Datos;
 
 // Crea los 2 roles y un usuario de prueba para cada uno, si todavía no existen.
 // No va en la migración porque las contraseñas se deben guardar cifradas, y eso lo hace UserManager.
