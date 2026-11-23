@@ -21,9 +21,20 @@ public class MovimientosController : Controller
     // ---------- Entrada ----------
 
     [HttpGet]
-    public IActionResult Entrada()
+    public IActionResult Entrada(int? cupoId)
     {
-        return View(CrearModeloEntrada(new EntradaViewModel()));
+        EntradaViewModel modelo = CrearModeloEntrada(new EntradaViewModel());
+
+        // Viene del plano ("Registrar entrada aquí"): deja ese cupo elegido y el tipo que le corresponde.
+        // Si el cupo no existe o ya está ocupado, no está en CuposLibres y se ignora.
+        Cupo? elegido = modelo.CuposLibres.FirstOrDefault(c => c.Id == cupoId);
+        if (elegido != null)
+        {
+            modelo.CupoId = elegido.Id;
+            modelo.Tipo = elegido.Tipo;
+        }
+
+        return View(modelo);
     }
 
     [HttpPost]

@@ -548,35 +548,95 @@ button {
   border-color: var(--negro-carbon);
 }
 
-.cupos {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
-  gap: var(--e-8);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.muestra--seleccionado {
+  background: var(--amarillo);
+  border-color: var(--amarillo);
 }
 
-.cupo {
-  height: 72px;
-  padding: var(--e-8);
+/* Plano: el SVG a la izquierda y el panel a la derecha; en pantallas angostas el panel va debajo. */
+.plano-contenedor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--e-24);
+  align-items: start;
+}
+
+.plano {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 720px;
+  background: #d9d6cf;
+}
+
+.plano__texto {
+  font-family: var(--fuente);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+.cupo-plano {
+  cursor: pointer;
+}
+
+.cupo-plano--seleccionado .cupo-plano__borde {
+  stroke: #ffc000;
+  stroke-width: 3;
+}
+
+.plano-panel {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: var(--e-8);
+  padding: var(--e-24);
   background: var(--blanco);
-  outline: 1px solid var(--gris-borde);
-  outline-offset: -1px;
-  font-size: 18px;
+  position: sticky;
+  top: var(--e-24);
 }
 
-.cupo small {
-  font-size: 10px;
+.plano-panel p {
+  margin: 0;
 }
 
-.cupo--ocupado {
-  background: var(--negro-carbon);
-  outline-color: var(--negro-carbon);
-  color: var(--blanco);
+.plano-panel__cifra {
+  font-size: 28px;
+}
+
+.plano-panel__detalle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-8);
+  margin-top: var(--e-16);
+  padding-top: var(--e-16);
+  border-top: 1px solid var(--gris-borde);
+}
+
+.plano-panel__detalle > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-8);
+  align-items: flex-start;
+}
+
+.plano-panel__codigo {
+  font-size: 56px;
+  line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .plano-contenedor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plano {
+    max-width: none;
+  }
+
+  .plano-panel {
+    position: static;
+  }
 }
 
 /* ---------- Tarjetas (tarifas) ---------- */
