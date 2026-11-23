@@ -470,120 +470,390 @@ namespace Parqueadero.Core.Migrations
                         new
                         {
                             Id = 41,
+                            Codigo = "A-41",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 42,
+                            Codigo = "A-42",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 43,
+                            Codigo = "A-43",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 44,
+                            Codigo = "A-44",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 45,
+                            Codigo = "A-45",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 46,
+                            Codigo = "A-46",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Codigo = "A-47",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Codigo = "A-48",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 49,
+                            Codigo = "A-49",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 50,
+                            Codigo = "A-50",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 51,
+                            Codigo = "A-51",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 52,
+                            Codigo = "A-52",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 53,
+                            Codigo = "A-53",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 54,
+                            Codigo = "A-54",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 55,
+                            Codigo = "A-55",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 56,
+                            Codigo = "A-56",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 57,
+                            Codigo = "A-57",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 58,
+                            Codigo = "A-58",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 59,
+                            Codigo = "A-59",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 60,
+                            Codigo = "A-60",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 61,
+                            Codigo = "A-61",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 62,
+                            Codigo = "A-62",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 63,
+                            Codigo = "A-63",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 64,
+                            Codigo = "A-64",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 65,
+                            Codigo = "A-65",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 66,
+                            Codigo = "A-66",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 67,
+                            Codigo = "A-67",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 68,
+                            Codigo = "A-68",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 69,
+                            Codigo = "A-69",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 70,
+                            Codigo = "A-70",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 71,
+                            Codigo = "A-71",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 72,
+                            Codigo = "A-72",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 73,
+                            Codigo = "A-73",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 74,
+                            Codigo = "A-74",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 75,
+                            Codigo = "A-75",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 76,
+                            Codigo = "A-76",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 77,
+                            Codigo = "A-77",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 78,
+                            Codigo = "A-78",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 79,
+                            Codigo = "A-79",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 80,
+                            Codigo = "A-80",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 81,
+                            Codigo = "A-81",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 82,
+                            Codigo = "A-82",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 83,
+                            Codigo = "A-83",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 84,
+                            Codigo = "A-84",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 85,
+                            Codigo = "A-85",
+                            Tipo = 0
+                        },
+                        new
+                        {
+                            Id = 86,
                             Codigo = "M-01",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 42,
+                            Id = 87,
                             Codigo = "M-02",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 43,
+                            Id = 88,
                             Codigo = "M-03",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 44,
+                            Id = 89,
                             Codigo = "M-04",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 45,
+                            Id = 90,
                             Codigo = "M-05",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 46,
+                            Id = 91,
                             Codigo = "M-06",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 47,
+                            Id = 92,
                             Codigo = "M-07",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 48,
+                            Id = 93,
                             Codigo = "M-08",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 49,
+                            Id = 94,
                             Codigo = "M-09",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 50,
+                            Id = 95,
                             Codigo = "M-10",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 51,
+                            Id = 96,
                             Codigo = "M-11",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 52,
+                            Id = 97,
                             Codigo = "M-12",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 53,
+                            Id = 98,
                             Codigo = "M-13",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 54,
+                            Id = 99,
                             Codigo = "M-14",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 55,
+                            Id = 100,
                             Codigo = "M-15",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 56,
+                            Id = 101,
                             Codigo = "M-16",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 57,
+                            Id = 102,
                             Codigo = "M-17",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 58,
+                            Id = 103,
                             Codigo = "M-18",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 59,
+                            Id = 104,
                             Codigo = "M-19",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 60,
+                            Id = 105,
                             Codigo = "M-20",
                             Tipo = 1
                         });

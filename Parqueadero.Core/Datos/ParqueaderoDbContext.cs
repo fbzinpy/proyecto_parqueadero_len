@@ -8,7 +8,7 @@ namespace Parqueadero.Core.Datos;
 // queden en la misma base de datos que los cupos, tickets y tarifas.
 public class ParqueaderoDbContext : IdentityDbContext
 {
-    public const int CuposCarro = 40;
+    public const int CuposCarro = 85;
     public const int CuposMoto = 20;
 
     public ParqueaderoDbContext(DbContextOptions<ParqueaderoDbContext> options) : base(options)
@@ -32,7 +32,7 @@ public class ParqueaderoDbContext : IdentityDbContext
             new Tarifa { Id = 2, Tipo = TipoVehiculo.Moto, ValorHora = 1500m });
     }
 
-    // 60 cupos: A-01 a A-40 para carros y M-01 a M-20 para motos.
+    // 105 cupos: A-01 a A-85 para carros y M-01 a M-20 para motos.
     private static List<Cupo> CrearCupos()
     {
         List<Cupo> cupos = new List<Cupo>();
