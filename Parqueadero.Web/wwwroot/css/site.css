@@ -179,8 +179,15 @@ button {
   color: var(--amarillo);
 }
 /* Mensajes de error y de confirmación (borde amarillo sobre fondo oscuro) */
-.aviso-contenedor {
-  padding-top: var(--e-24);
+/* Aviso de confirmación: franja negra de lado a lado, con el texto alineado al contenido de la página. */
+.aviso {
+  background: var(--negro-profundo);
+  border-bottom: 3px solid var(--amarillo);
+}
+
+.aviso .mensaje {
+  padding: var(--e-16) 0;
+  border-left: 0;
 }
 .mensaje {
   margin: 0;
@@ -575,6 +582,14 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   pointer-events: none;
+}
+
+/* Texto blanco sobre el asfalto: el contorno oscuro "borra" la línea punteada que pasa por detrás. */
+.plano__texto--asfalto {
+  stroke: #3b3d40;
+  stroke-width: 7px;
+  stroke-linejoin: round;
+  paint-order: stroke;
 }
 
 .cupo-plano {

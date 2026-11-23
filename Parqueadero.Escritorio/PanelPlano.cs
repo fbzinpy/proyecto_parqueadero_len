@@ -1,4 +1,4 @@
-using System.Drawing.Drawing2D;
+﻿using System.Drawing.Drawing2D;
 using Parqueadero.Core.Entidades;
 using Parqueadero.Core.Servicios;
 
@@ -250,14 +250,26 @@ public class PanelPlano : Panel
         Rellenar(g, "#b0b0ad", x + margen, y + margen, ancho - margen * 2, alto - margen * 2);
     }
 
-    private static void Texto(Graphics g, string texto, float x, float y, Color color, bool centrado)
+    // sobreAsfalto: el texto va sobre un recuadro del color del asfalto, para que la línea punteada no lo atraviese.
+    private static void Texto(Graphics g, string texto, float x, float y, Color color, bool centrado, bool sobreAsfalto = false)
     {
         using (Font fuente = new Font("Segoe UI", 11f, FontStyle.Bold, GraphicsUnit.Pixel))
         using (SolidBrush pincel = new SolidBrush(color))
         using (StringFormat formato = new StringFormat())
         {
             formato.Alignment = centrado ? StringAlignment.Center : StringAlignment.Near;
-            g.DrawString(texto.ToUpper(), fuente, pincel, x, y - 11, formato);
+            string mayusculas = texto.ToUpper();
+
+            if (sobreAsfalto)
+            {
+                SizeF medida = g.MeasureString(mayusculas, fuente);
+                using (SolidBrush fondo = new SolidBrush(Asfalto))
+                {
+                    g.FillRectangle(fondo, x - 2, y - 11, medida.Width - 4, medida.Height);
+                }
+            }
+
+            g.DrawString(mayusculas, fuente, pincel, x, y - 11, formato);
         }
     }
 
@@ -338,8 +350,8 @@ public class PanelPlano : Panel
         Texto(g, "Bloques", 785, 600, TextoOscuro, true);
         Texto(g, "Motos", 158, 248, TextoOscuro, true);
         Texto(g, "← Portería · entrada y salida", 8, 928, TextoOscuro, false);
-        Texto(g, "Norte · consulado", 330, 32, Color.White, false);
-        Texto(g, "Fila superior · al fondo", 380, 144, Color.White, false);
+        Texto(g, "Norte · consulado", 330, 32, Color.White, false, true);
+        Texto(g, "Fila superior · al fondo", 380, 144, Color.White, false, true);
     }
 
     private static void Circulo(Graphics g, string color, float x, float y, float r)
