@@ -578,7 +578,7 @@ button {
 
 .plano__texto {
   font-family: var(--fuente);
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   pointer-events: none;

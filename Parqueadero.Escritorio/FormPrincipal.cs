@@ -1,46 +1,40 @@
-﻿using System.Globalization;
-using Microsoft.Extensions.DependencyInjection;
-using Parqueadero.Core.Entidades;
-using Parqueadero.Core.Servicios;
+﻿using Parqueadero.Core.Datos;
 
 namespace Parqueadero.Escritorio;
 
-// Pantalla principal: barra superior con el usuario y "Cerrar sesión", y debajo
-// entrada, salida y datos del cupo a la izquierda, y el plano de cupos a la derecha.
-// La lógica está en Core (ServicioParqueadero, EstadoParqueadero, CalculadoraCobro);
-// aquí solo se leen los campos, se llama a Core y se muestra el resultado.
-public class FormPrincipal : Form
+// Ventana principal: barra negra con el menú (como el de la web) y, debajo, la pantalla elegida.
+// Las opciones del menú dependen del rol: el Operador ve Panel, Entrada, Salida e Historial;
+// el Administrador ve además Administración.
+public class FormPrincipal : Form, IMessageFilter
 {
-    private static readonly CultureInfo Colombia = new CultureInfo("es-CO");
+    private const int WM_LBUTTONDOWN = 0x0201;
+    private const int WM_NCLBUTTONDOWN = 0x00A1;
 
-    // Entrada
-    private readonly TextBox _txtPlacaEntrada = Estilo.Campo(20, 78, 296, true);
-    private readonly RadioButton _rbCarro = Estilo.Opcion("Carro", 20, 140, 144, 38);
-    private readonly RadioButton _rbMoto = Estilo.Opcion("Moto", 172, 140, 144, 38);
-    private readonly Label _lblMensajeEntrada = Estilo.Texto(20, 238, 296, 44, 15, Estilo.Exito);
+    public const string NombrePanel = "Panel";
+    public const string NombreEntrada = "Registrar entrada";
+    public const string NombreSalida = "Registrar salida";
+    public const string NombreHistorial = "Historial";
+    public const string NombreAdmin = "Administración";
 
-    // Salida
-    private readonly TextBox _txtPlacaSalida = Estilo.Campo(20, 78, 196, true);
-    private readonly Label _lblInfoSalida = Estilo.Texto(20, 124, 296, 96, 16, Estilo.Carbon);
-    private readonly Button _btnCobrar = Estilo.BotonOscuro("Cobrar y dar salida  →", 20, 226, 296, 46);
-    private readonly Label _lblMensajeSalida = Estilo.Texto(20, 280, 296, 44, 15, Estilo.Exito);
+    public string Correo { get; }
+    public string Rol { get; }
+    public bool EsAdministrador => Rol == DatosIniciales.RolAdministrador;
 
-    // Placa del ticket que se buscó. "Cobrar" usa esta, no lo que haya escrito después en el campo.
-    private string? _placaEncontrada;
+    private readonly Panel _contenido = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.GrisClaro };
+    private readonly Panel _menu = new Panel { Width = 320, BackColor = ColorTranslator.FromHtml("#181818"), Visible = false };
+    private readonly Button _btnMenu;
+    private readonly Panel _barra;
 
-    // Cupo seleccionado
-    private readonly Label _lblCodigo = Estilo.Titulo("—", 20, 40, 48, Estilo.Carbon);
-    private readonly Label _lblDetalleCupo = Estilo.Texto(20, 104, 296, 96, 16, Estilo.Carbon);
-
-    // Plano y ocupación
-    private readonly PanelPlano _plano = new PanelPlano();
-    private readonly Label _lblOcupacion = Estilo.Titulo("", 0, 46, 22, Estilo.Carbon);
-    private readonly Panel _barraRelleno = new Panel { Dock = DockStyle.Left, BackColor = Estilo.Amarillo };
-    private readonly Panel _barraFondo = new Panel { Dock = DockStyle.Bottom, Height = 6, BackColor = Color.FromArgb(222, 222, 222) };
-    private int _porcentajeOcupado;
+    // Las pantallas y los botones del menú, por nombre (en el orden en que aparecen).
+    private readonly Dictionary<string, Vista> _vistas = new Dictionary<string, Vista>();
+    private readonly Dictionary<string, Button> _botonesMenu = new Dictionary<string, Button>();
+    private string _actual = "";
 
     public FormPrincipal(string correo, string rol)
     {
+        Correo = correo;
+        Rol = rol;
+
         AutoScaleDimensions = new SizeF(96F, 96F);
         AutoScaleMode = AutoScaleMode.Dpi;
 
@@ -48,38 +42,44 @@ public class FormPrincipal : Form
         BackColor = Estilo.GrisClaro;
         Font = Estilo.Fuente(14);
         StartPosition = FormStartPosition.CenterScreen;
-        WindowState = FormWindowState.Maximized; // Abre ocupando toda la pantalla: así caben las tarjetas y el plano se ve más grande.
+        WindowState = FormWindowState.Maximized; // Abre ocupando toda la pantalla.
 
-        // Tamaño inicial: el que quepa en la pantalla (en portátiles pequeños no se sale).
+        // Tamaño al restaurar la ventana: el que quepa en la pantalla.
         Rectangle pantalla = Screen.PrimaryScreen!.WorkingArea;
         Size = new Size(Math.Min(1240, pantalla.Width), Math.Min(800, pantalla.Height));
         MinimumSize = new Size(Math.Min(1100, pantalla.Width), Math.Min(640, pantalla.Height));
 
+        _btnMenu = CrearBotonMenu();
+        _barra = CrearBarra();
+
         // El orden importa al acoplar (Dock): primero lo que ocupa el resto (Fill) y después los bordes.
-        Panel cuerpo = new Panel { Dock = DockStyle.Fill, Padding = new Padding(24), BackColor = Estilo.GrisClaro };
-        Controls.Add(cuerpo);
-        Controls.Add(CrearBarra(correo, rol));
+        Controls.Add(_contenido);
+        Controls.Add(_barra);
 
-        Panel derecha = new Panel { Dock = DockStyle.Fill, Padding = new Padding(24, 0, 0, 0), BackColor = Estilo.GrisClaro };
-        cuerpo.Controls.Add(derecha);
-        cuerpo.Controls.Add(CrearColumnaIzquierda());
+        CrearPantallas();
+        CrearMenu();
+        Controls.Add(_menu); // El menú flota encima del contenido (no está acoplado).
 
-        _plano.Dock = DockStyle.Fill;
-        derecha.Controls.Add(_plano);
-        derecha.Controls.Add(CrearCabeceraMapa());
-
-        _rbCarro.Checked = true;
-        _rbCarro.CheckedChanged += (sender, e) => MostrarSeleccion();
-        _plano.SeleccionCambio += (sender, e) => MostrarSeleccion();
-
-        RefrescarMapa();
+        Ir(NombrePanel);
     }
 
-    // ---------- Construcción de las zonas ----------
-
-    private Panel CrearBarra(string correo, string rol)
+    public void IrAEntrada(int? cupoId)
     {
-        Panel barra = new Panel { Dock = DockStyle.Top, Height = 64, BackColor = Estilo.Carbon, Padding = new Padding(24, 0, 24, 0) };
+        ((VistaEntrada)_vistas[NombreEntrada]).Preparar(cupoId);
+        Ir(NombreEntrada, false);
+    }
+
+    public void IrASalida(string? placa)
+    {
+        ((VistaSalida)_vistas[NombreSalida]).Preparar(placa);
+        Ir(NombreSalida, false);
+    }
+
+    // ---------- Construcción ----------
+
+    private Panel CrearBarra()
+    {
+        Panel barra = new Panel { Dock = DockStyle.Top, Height = 64, BackColor = Estilo.Carbon, Padding = new Padding(8, 0, 24, 0) };
 
         Label marca = Estilo.Titulo("Parqueadero", 0, 0, 28, Estilo.Blanco);
         marca.Dock = DockStyle.Left;
@@ -87,219 +87,170 @@ public class FormPrincipal : Form
         marca.Width = 260;
         marca.TextAlign = ContentAlignment.MiddleLeft;
 
-        // A la derecha: rol, correo y el botón de cerrar sesión (un panel que crece solo según su contenido).
-        FlowLayoutPanel derecha = new FlowLayoutPanel
-        {
-            Dock = DockStyle.Right,
-            AutoSize = true,
-            FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
-            BackColor = Estilo.Carbon
-        };
-
-        Label lblRol = Estilo.Titulo(rol, 0, 0, 13, Estilo.Amarillo);
+        // A la derecha: rol y correo de quien inició sesión.
+        Label lblRol = Estilo.Titulo(Rol, 0, 0, 13, Estilo.Amarillo);
         lblRol.Margin = new Padding(0, 12, 0, 0);
         Label lblCorreo = Estilo.Titulo("", 0, 0, 16, Estilo.Blanco);
-        lblCorreo.Text = correo; // El correo se muestra tal cual, sin pasarlo a mayúsculas.
+        lblCorreo.Text = Correo; // El correo se muestra tal cual, sin pasarlo a mayúsculas.
         lblCorreo.Margin = new Padding(0);
         FlowLayoutPanel datos = new FlowLayoutPanel
         {
+            Dock = DockStyle.Right,
             AutoSize = true,
             FlowDirection = FlowDirection.TopDown,
             WrapContents = false,
-            Margin = new Padding(0, 0, 20, 0),
             BackColor = Estilo.Carbon
         };
         datos.Controls.Add(lblRol);
         datos.Controls.Add(lblCorreo);
 
-        Button btnCerrar = Estilo.BotonBorde("Cerrar sesión", 0, 0, 160, 38, true);
-        btnCerrar.Margin = new Padding(0, 13, 0, 0);
-        btnCerrar.Click += (sender, e) => CerrarSesion();
-
-        derecha.Controls.Add(datos);
-        derecha.Controls.Add(btnCerrar);
-
-        barra.Controls.Add(derecha);
+        barra.Controls.Add(datos);
         barra.Controls.Add(marca);
+        barra.Controls.Add(_btnMenu); // Último: queda pegado a la izquierda.
         return barra;
     }
 
-    private FlowLayoutPanel CrearColumnaIzquierda()
+    // Botón "☰ MENÚ" (las tres rayas se dibujan, para no depender de la letra).
+    private Button CrearBotonMenu()
     {
-        FlowLayoutPanel columna = new FlowLayoutPanel
+        Bitmap icono = new Bitmap(24, 24);
+        using (Graphics g = Graphics.FromImage(icono))
+        using (Pen lapiz = new Pen(Color.White, 2f))
         {
+            g.DrawLine(lapiz, 2, 6, 22, 6);
+            g.DrawLine(lapiz, 2, 12, 22, 12);
+            g.DrawLine(lapiz, 2, 18, 22, 18);
+        }
+
+        Button boton = new Button
+        {
+            Text = "MENÚ",
+            Image = icono,
+            ImageAlign = ContentAlignment.MiddleLeft,
+            TextAlign = ContentAlignment.MiddleLeft,
+            TextImageRelation = TextImageRelation.ImageBeforeText,
             Dock = DockStyle.Left,
-            Width = 372,
-            FlowDirection = FlowDirection.TopDown,
-            WrapContents = false,
-            AutoScroll = true,
-            BackColor = Estilo.GrisClaro
+            Width = 130,
+            Font = Estilo.Fuente(15),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Estilo.Carbon,
+            ForeColor = Estilo.Blanco,
+            Cursor = Cursors.Hand,
+            Padding = new Padding(12, 0, 0, 0),
+            UseVisualStyleBackColor = false
         };
-
-        columna.Controls.Add(CrearZonaEntrada());
-        columna.Controls.Add(CrearZonaSalida());
-        columna.Controls.Add(CrearZonaCupo());
-        return columna;
+        boton.FlatAppearance.BorderSize = 0;
+        boton.FlatAppearance.MouseOverBackColor = Estilo.Grafito;
+        boton.Click += (sender, e) => AlternarMenu();
+        return boton;
     }
 
-    private Panel CrearZonaEntrada()
+    // Crea cada pantalla una sola vez; la de Administración solo existe para el Administrador.
+    private void CrearPantallas()
     {
-        Panel tarjeta = Estilo.Tarjeta(336, 296);
-
-        Button btnRegistrar = Estilo.BotonAmarillo("Registrar entrada  →", 20, 188, 296, 46);
-        btnRegistrar.Click += (sender, e) => RegistrarEntrada();
-
-        // Enter en el campo de la placa equivale a hacer clic en el botón.
-        _txtPlacaEntrada.KeyDown += (sender, e) =>
+        _vistas[NombrePanel] = new VistaPanel(this);
+        _vistas[NombreEntrada] = new VistaEntrada(this);
+        _vistas[NombreSalida] = new VistaSalida(this);
+        _vistas[NombreHistorial] = new VistaHistorial(this);
+        if (EsAdministrador)
         {
-            if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true;
-                RegistrarEntrada();
-            }
-        };
+            _vistas[NombreAdmin] = new VistaAdmin(this);
+        }
 
-        tarjeta.Controls.AddRange(new Control[]
+        foreach (Vista vista in _vistas.Values)
         {
-            Estilo.Titulo("Entrada", 20, 14, 28, Estilo.Carbon),
-            Estilo.Etiqueta("Placa", 20, 58),
-            _txtPlacaEntrada,
-            Estilo.Etiqueta("Tipo de vehículo", 20, 120),
-            _rbCarro,
-            _rbMoto,
-            btnRegistrar,
-            _lblMensajeEntrada
-        });
-        return tarjeta;
+            vista.Visible = false;
+            _contenido.Controls.Add(vista);
+        }
     }
 
-    private Panel CrearZonaSalida()
+    // Lista del menú: una opción por pantalla y, al final, "Cerrar sesión".
+    private void CrearMenu()
     {
-        Panel tarjeta = Estilo.Tarjeta(336, 336);
-
-        Button btnBuscar = Estilo.BotonBorde("Buscar", 226, 78, 90, 34, false);
-        btnBuscar.Click += (sender, e) => BuscarTicket();
-
-        _btnCobrar.Enabled = false; // Se activa cuando se encuentra un vehículo.
-        _btnCobrar.Click += (sender, e) => CobrarYDarSalida();
-
-        _txtPlacaSalida.KeyDown += (sender, e) =>
+        foreach (string nombre in _vistas.Keys)
         {
-            if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true;
-                BuscarTicket();
-            }
-        };
+            string destino = nombre;
+            Button boton = CrearOpcionMenu(nombre);
+            boton.Click += (sender, e) => Ir(destino);
+            _botonesMenu[nombre] = boton;
+        }
 
-        // Si cambia la placa después de buscar, hay que buscar de nuevo antes de cobrar.
-        _txtPlacaSalida.TextChanged += (sender, e) =>
-        {
-            if (_placaEncontrada != null && ServicioParqueadero.NormalizarPlaca(_txtPlacaSalida.Text) != _placaEncontrada)
-            {
-                LimpiarBusqueda();
-            }
-        };
+        Button cerrar = CrearOpcionMenu("Cerrar sesión");
+        cerrar.Click += (sender, e) => CerrarSesion();
 
-        tarjeta.Controls.AddRange(new Control[]
+        // Con Dock.Top lo último que se agrega queda arriba: se agregan de abajo hacia arriba.
+        _menu.Controls.Add(cerrar);
+        foreach (string nombre in _vistas.Keys.Reverse())
         {
-            Estilo.Titulo("Salida", 20, 14, 28, Estilo.Carbon),
-            Estilo.Etiqueta("Placa", 20, 58),
-            _txtPlacaSalida,
-            btnBuscar,
-            _lblInfoSalida,
-            _btnCobrar,
-            _lblMensajeSalida
-        });
-        return tarjeta;
+            _menu.Controls.Add(_botonesMenu[nombre]);
+        }
+
+        _menu.Height = (_vistas.Count + 1) * 56 + 16;
+        _menu.Padding = new Padding(0, 8, 0, 8);
     }
 
-    private Panel CrearZonaCupo()
+    private static Button CrearOpcionMenu(string texto)
     {
-        Panel tarjeta = Estilo.Tarjeta(336, 210);
-
-        _lblDetalleCupo.Text = "Toca un cupo en el plano para ver su zona y qué tan lejos está de la portería.";
-        _lblDetalleCupo.ForeColor = Estilo.Grafito;
-
-        tarjeta.Controls.AddRange(new Control[]
+        Button boton = new Button
         {
-            Estilo.Etiqueta("Cupo seleccionado", 20, 16),
-            _lblCodigo,
-            _lblDetalleCupo
-        });
-        return tarjeta;
+            Text = texto.ToUpper(),
+            Dock = DockStyle.Top,
+            Height = 56,
+            TextAlign = ContentAlignment.MiddleLeft,
+            Padding = new Padding(24, 0, 0, 0),
+            Font = Estilo.Fuente(20),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = ColorTranslator.FromHtml("#181818"),
+            ForeColor = Estilo.Blanco,
+            Cursor = Cursors.Hand,
+            UseVisualStyleBackColor = false
+        };
+        boton.FlatAppearance.BorderSize = 0;
+        boton.FlatAppearance.MouseOverBackColor = Estilo.Grafito;
+        return boton;
     }
 
-    private Panel CrearCabeceraMapa()
+    // ---------- Navegación ----------
+
+    // Muestra una pantalla. alMostrar = false cuando la pantalla ya se preparó con datos (cupo o placa elegidos).
+    private void Ir(string nombre, bool alMostrar = true)
     {
-        Panel cabecera = new Panel { Dock = DockStyle.Top, Height = 104, BackColor = Estilo.GrisClaro };
-
-        // Lado izquierdo: título, cuántos hay ocupados y la barra de ocupación.
-        Panel izquierda = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.GrisClaro };
-        izquierda.Controls.Add(Estilo.Titulo("Mapa de cupos", 0, 0, 34, Estilo.Carbon));
-        izquierda.Controls.Add(_lblOcupacion);
-
-        // Lado derecho: leyenda y botón Actualizar.
-        FlowLayoutPanel derecha = new FlowLayoutPanel
+        // Cada pantalla se pide por su nombre; si el rol no la tiene (Administración), no existe en el diccionario.
+        if (!_vistas.TryGetValue(nombre, out Vista? vista))
         {
-            Dock = DockStyle.Right,
-            AutoSize = true,
-            FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
-            BackColor = Estilo.GrisClaro
-        };
-        derecha.Controls.Add(CrearLeyenda("Libre", Estilo.Blanco));
-        derecha.Controls.Add(CrearLeyenda("Ocupado", Estilo.Carbon));
-        derecha.Controls.Add(CrearLeyenda("Seleccionado", Estilo.Amarillo));
+            return;
+        }
 
-        Button btnActualizar = Estilo.BotonBorde("Actualizar", 0, 0, 130, 38, false);
-        btnActualizar.Margin = new Padding(12, 2, 0, 0);
-        btnActualizar.Click += (sender, e) => RefrescarMapa();
-        derecha.Controls.Add(btnActualizar);
+        foreach (Vista otra in _vistas.Values)
+        {
+            otra.Visible = otra == vista;
+        }
+        _actual = nombre;
 
-        // La barra se estira con la ventana: el relleno amarillo mide el porcentaje del ancho.
-        _barraFondo.Controls.Add(_barraRelleno);
-        _barraFondo.Resize += (sender, e) => AjustarBarra();
+        // La opción activa se pinta en amarillo, como en la web.
+        foreach (KeyValuePair<string, Button> opcion in _botonesMenu)
+        {
+            opcion.Value.ForeColor = opcion.Key == nombre ? Estilo.Amarillo : Estilo.Blanco;
+        }
 
-        // Fill primero, después los bordes.
-        cabecera.Controls.Add(izquierda);
-        cabecera.Controls.Add(derecha);
-        cabecera.Controls.Add(_barraFondo);
-        return cabecera;
+        _menu.Visible = false;
+        Text = "Parqueadero - " + nombre;
+
+        if (alMostrar)
+        {
+            vista.AlMostrar();
+        }
     }
 
-    // Un cuadrito de color con su nombre (libre, ocupado, seleccionado).
-    private static Control CrearLeyenda(string texto, Color color)
+    private void AlternarMenu()
     {
-        FlowLayoutPanel item = new FlowLayoutPanel
+        _menu.Location = new Point(0, _barra.Bottom);
+        _menu.Visible = !_menu.Visible;
+        if (_menu.Visible)
         {
-            AutoSize = true,
-            FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
-            Margin = new Padding(0, 10, 12, 0),
-            BackColor = Estilo.GrisClaro
-        };
-
-        Panel muestra = new Panel { Size = new Size(16, 16), BackColor = color, Margin = new Padding(0, 3, 6, 0) };
-        // Con el cuadro blanco hace falta un borde para que se vea sobre el fondo gris.
-        muestra.Paint += (sender, e) =>
-        {
-            using (Pen borde = new Pen(Estilo.GrisBorde))
-            {
-                e.Graphics.DrawRectangle(borde, 0, 0, muestra.Width - 1, muestra.Height - 1);
-            }
-        };
-
-        Label etiqueta = Estilo.Titulo(texto, 0, 0, 13, Estilo.Grafito);
-        etiqueta.Margin = new Padding(0);
-
-        item.Controls.Add(muestra);
-        item.Controls.Add(etiqueta);
-        return item;
+            _menu.BringToFront();
+        }
     }
-
-    // ---------- Acciones ----------
 
     private void CerrarSesion()
     {
@@ -307,201 +258,32 @@ public class FormPrincipal : Form
         DialogResult = DialogResult.Retry;
     }
 
-    private void RegistrarEntrada()
+    // ---------- Cerrar el menú al hacer clic fuera ----------
+
+    protected override void OnLoad(EventArgs e)
     {
-        TipoVehiculo tipo = _rbCarro.Checked ? TipoVehiculo.Carro : TipoVehiculo.Moto;
+        base.OnLoad(e);
+        Application.AddMessageFilter(this);
+    }
 
-        try
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        Application.RemoveMessageFilter(this);
+        base.OnFormClosed(e);
+    }
+
+    // Se llama con cada mensaje de la aplicación: si hay un clic fuera del menú, se cierra.
+    public bool PreFilterMessage(ref Message m)
+    {
+        if (_menu.Visible && (m.Msg == WM_LBUTTONDOWN || m.Msg == WM_NCLBUTTONDOWN))
         {
-            // Un scope nuevo por cada operación: el DbContext lee los datos frescos (también lo que se registró desde la web).
-            using (IServiceScope scope = Program.Servicios.CreateScope())
+            Control? control = Control.FromHandle(m.HWnd);
+            bool dentro = control != null && (control == _menu || _menu.Contains(control) || control == _btnMenu);
+            if (!dentro)
             {
-                ServicioParqueadero servicio = scope.ServiceProvider.GetRequiredService<ServicioParqueadero>();
-
-                // Si hay un cupo libre seleccionado en el plano y es del tipo elegido, se usa ese.
-                // Si no, null = el cupo se asigna automáticamente.
-                Cupo? elegido = _plano.CupoSeleccionado;
-                int? cupoId = null;
-                if (elegido != null && elegido.Tipo == tipo && !_plano.EstaOcupado(elegido))
-                {
-                    cupoId = elegido.Id;
-                }
-
-                (Ticket? ticket, string? error) = servicio.RegistrarEntrada(_txtPlacaEntrada.Text, tipo, cupoId);
-
-                if (error != null)
-                {
-                    Estilo.Mensaje(_lblMensajeEntrada, error, true);
-                }
-                else
-                {
-                    Estilo.Mensaje(_lblMensajeEntrada, $"Entrada registrada: {ticket!.Placa} en el cupo {ticket.Cupo!.Codigo}", false);
-                    _txtPlacaEntrada.Clear();
-                }
+                _menu.Visible = false;
             }
         }
-        catch (Exception ex)
-        {
-            Estilo.Mensaje(_lblMensajeEntrada, "No se pudo registrar: " + ex.Message, true);
-        }
-
-        RefrescarMapa();
-    }
-
-    private void BuscarTicket()
-    {
-        LimpiarBusqueda();
-
-        try
-        {
-            using (IServiceScope scope = Program.Servicios.CreateScope())
-            {
-                ServicioParqueadero servicio = scope.ServiceProvider.GetRequiredService<ServicioParqueadero>();
-                Ticket? ticket = servicio.BuscarTicketAbierto(_txtPlacaSalida.Text);
-
-                if (ticket == null)
-                {
-                    Estilo.Mensaje(_lblMensajeSalida, "Ese vehículo no está en el parqueadero.", true);
-                    return;
-                }
-
-                // Lo que pagaría si sale ahora: horas cobradas × valor de la hora.
-                int horas = CalculadoraCobro.HorasCobradas(ticket.HoraEntrada, DateTime.Now);
-                decimal total = horas * servicio.ValorHora(ticket.Tipo);
-
-                _placaEncontrada = ticket.Placa;
-                _lblInfoSalida.Text =
-                    $"{ticket.Placa} · {ticket.Tipo} · cupo {ticket.Cupo!.Codigo}\n" +
-                    $"Entró a las {ticket.HoraEntrada:dd/MM HH:mm}\n" +
-                    $"Horas cobradas: {horas}\n" +
-                    $"Total si sale ahora: {FormatoPesos(total)}";
-                _btnCobrar.Enabled = true;
-            }
-        }
-        catch (Exception ex)
-        {
-            Estilo.Mensaje(_lblMensajeSalida, "No se pudo buscar: " + ex.Message, true);
-        }
-    }
-
-    private void CobrarYDarSalida()
-    {
-        // Solo se cobra la placa que se buscó (el botón está desactivado hasta que se encuentra una).
-        if (_placaEncontrada == null)
-        {
-            Estilo.Mensaje(_lblMensajeSalida, "Busca primero la placa.", true);
-            return;
-        }
-
-        DialogResult respuesta = MessageBox.Show(
-            $"¿Dar salida al vehículo {_placaEncontrada}?\n\n{_lblInfoSalida.Text.Split('\n').Last()}",
-            "Cobrar y dar salida", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        if (respuesta != DialogResult.Yes)
-        {
-            return;
-        }
-
-        try
-        {
-            using (IServiceScope scope = Program.Servicios.CreateScope())
-            {
-                ServicioParqueadero servicio = scope.ServiceProvider.GetRequiredService<ServicioParqueadero>();
-                Ticket? ticket = servicio.RegistrarSalida(_placaEncontrada);
-
-                if (ticket == null)
-                {
-                    LimpiarBusqueda();
-                    Estilo.Mensaje(_lblMensajeSalida, "Ese vehículo ya no está en el parqueadero.", true);
-                }
-                else
-                {
-                    LimpiarBusqueda();
-                    _txtPlacaSalida.Clear();
-                    Estilo.Mensaje(_lblMensajeSalida, $"Salida registrada: {ticket.Placa}. Total cobrado: {FormatoPesos(ticket.Total ?? 0)}", false);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Estilo.Mensaje(_lblMensajeSalida, "No se pudo registrar la salida: " + ex.Message, true);
-        }
-
-        RefrescarMapa();
-    }
-
-    // Borra el resultado de la última búsqueda y desactiva el botón de cobrar.
-    private void LimpiarBusqueda()
-    {
-        _placaEncontrada = null;
-        _lblInfoSalida.Text = "";
-        _lblMensajeSalida.Text = "";
-        _btnCobrar.Enabled = false;
-    }
-
-    // ---------- Plano de cupos ----------
-
-    // Lee los cupos y los ocupados de la base de datos y vuelve a dibujar el plano.
-    private void RefrescarMapa()
-    {
-        try
-        {
-            using (IServiceScope scope = Program.Servicios.CreateScope())
-            {
-                ServicioParqueadero servicio = scope.ServiceProvider.GetRequiredService<ServicioParqueadero>();
-                List<Cupo> cupos = servicio.ObtenerCupos();
-                EstadoParqueadero estado = servicio.CargarEstado();
-
-                _plano.Actualizar(cupos, estado);
-
-                _lblOcupacion.Text = $"{estado.CuposOcupados} de {estado.TotalCupos} ocupados".ToUpper();
-                _porcentajeOcupado = estado.TotalCupos == 0 ? 0 : estado.CuposOcupados * 100 / estado.TotalCupos;
-                AjustarBarra();
-            }
-        }
-        catch (Exception ex)
-        {
-            _lblOcupacion.Text = "NO SE PUDO LEER LA BASE DE DATOS";
-            MessageBox.Show("No se pudo leer el estado del parqueadero:\n" + ex.Message, "Parqueadero", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
-    }
-
-    private void AjustarBarra()
-    {
-        _barraRelleno.Width = _barraFondo.Width * _porcentajeOcupado / 100;
-    }
-
-    // Muestra los datos del cupo seleccionado (se llama al tocar un cupo, al refrescar y al cambiar el tipo).
-    private void MostrarSeleccion()
-    {
-        Cupo? cupo = _plano.CupoSeleccionado;
-        PosicionCupo? posicion = _plano.PosicionSeleccionada;
-        if (cupo == null || posicion == null)
-        {
-            return;
-        }
-
-        bool ocupado = _plano.EstaOcupado(cupo);
-        TipoVehiculo tipoElegido = _rbCarro.Checked ? TipoVehiculo.Carro : TipoVehiculo.Moto;
-
-        _lblCodigo.Text = cupo.Codigo;
-        _lblDetalleCupo.ForeColor = Estilo.Carbon;
-        _lblDetalleCupo.Text =
-            $"{cupo.Tipo} · {(ocupado ? "Ocupado" : "Libre")}\n" +
-            $"{posicion.Zona}\n" +
-            $"A unos {PlanoParqueadero.MetrosAPorteria(posicion)} m de la portería";
-
-        // Avisa qué pasará al registrar la entrada.
-        if (!ocupado && cupo.Tipo == tipoElegido)
-        {
-            _lblDetalleCupo.Text += "\nSe usará al registrar la entrada.";
-        }
-    }
-
-    // ---------- Ayudas de presentación ----------
-
-    // Igual que en la web: "$ 12.000".
-    private static string FormatoPesos(decimal valor)
-    {
-        return "$ " + valor.ToString("N0", Colombia);
+        return false; // El clic sigue su camino normal.
     }
 }

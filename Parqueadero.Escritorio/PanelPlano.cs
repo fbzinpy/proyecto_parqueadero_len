@@ -250,10 +250,11 @@ public class PanelPlano : Panel
         Rellenar(g, "#b0b0ad", x + margen, y + margen, ancho - margen * 2, alto - margen * 2);
     }
 
-    // sobreAsfalto: el texto va sobre un recuadro del color del asfalto, para que la línea punteada no lo atraviese.
+    // sobreAsfalto: el texto va sobre un recuadro del color del asfalto, para que la línea punteada no lo atraviese
+    // y para que se lea el texto blanco.
     private static void Texto(Graphics g, string texto, float x, float y, Color color, bool centrado, bool sobreAsfalto = false)
     {
-        using (Font fuente = new Font("Segoe UI", 11f, FontStyle.Bold, GraphicsUnit.Pixel))
+        using (Font fuente = new Font("Segoe UI", 12f, FontStyle.Bold, GraphicsUnit.Pixel))
         using (SolidBrush pincel = new SolidBrush(color))
         using (StringFormat formato = new StringFormat())
         {
@@ -263,13 +264,15 @@ public class PanelPlano : Panel
             if (sobreAsfalto)
             {
                 SizeF medida = g.MeasureString(mayusculas, fuente);
+                float ancho = medida.Width - 4;
+                float izquierda = centrado ? x - ancho / 2 : x - 2;
                 using (SolidBrush fondo = new SolidBrush(Asfalto))
                 {
-                    g.FillRectangle(fondo, x - 2, y - 11, medida.Width - 4, medida.Height);
+                    g.FillRectangle(fondo, izquierda, y - 12, ancho + 2, medida.Height);
                 }
             }
 
-            g.DrawString(mayusculas, fuente, pincel, x, y - 11, formato);
+            g.DrawString(mayusculas, fuente, pincel, x, y - 12, formato);
         }
     }
 
@@ -343,15 +346,16 @@ public class PanelPlano : Panel
             new PointF(196, 852), new PointF(160, 852), new PointF(160, 842), new PointF(140, 858),
             new PointF(160, 874), new PointF(160, 864), new PointF(196, 864));
 
-        // Textos
-        Texto(g, "Edificio", 60, 290, TextoOscuro, true);
-        Texto(g, "Coliseo múltiple USC", 60, 610, TextoOscuro, true);
-        Texto(g, "Bloques", 785, 260, TextoOscuro, true);
-        Texto(g, "Bloques", 785, 600, TextoOscuro, true);
-        Texto(g, "Motos", 158, 248, TextoOscuro, true);
+        // Textos (cada uno cabe dentro de su edificio o zona)
+        Texto(g, "Edificio", 60, 294, TextoOscuro, true);
+        Texto(g, "Coliseo", 60, 604, TextoOscuro, true);
+        Texto(g, "múltiple USC", 60, 620, TextoOscuro, true);
+        Texto(g, "Bloques", 785, 264, TextoOscuro, true);
+        Texto(g, "Bloques", 785, 604, TextoOscuro, true);
         Texto(g, "← Portería · entrada y salida", 8, 928, TextoOscuro, false);
         Texto(g, "Norte · consulado", 330, 32, Color.White, false, true);
         Texto(g, "Fila superior · al fondo", 380, 144, Color.White, false, true);
+        Texto(g, "Motos", 220, 246, Color.White, true, true);
     }
 
     private static void Circulo(Graphics g, string color, float x, float y, float r)

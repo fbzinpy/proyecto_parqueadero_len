@@ -191,4 +191,125 @@ public static class Estilo
             Margin = new Padding(0, 0, 0, 16)
         };
     }
+
+    // ---------- Cabeceras, tablas y leyendas ----------
+
+    // Encabezado de cada pantalla: antetítulo pequeño y título grande (como el bloque negro de la web).
+    public static Panel Cabecera(string antetitulo, string titulo, out Label lblAntetitulo)
+    {
+        Panel panel = new Panel { Dock = DockStyle.Top, Height = 96, BackColor = GrisClaro };
+        lblAntetitulo = Etiqueta(antetitulo, 0, 0);
+        lblAntetitulo.ForeColor = AmarilloOscuro;
+        panel.Controls.Add(lblAntetitulo);
+        panel.Controls.Add(Titulo(titulo, 0, 22, 40, Carbon));
+        return panel;
+    }
+
+    // Tabla plana, sin bordes, con el encabezado en gris y la fila elegida en amarillo claro.
+    public static DataGridView Tabla()
+    {
+        DataGridView tabla = new DataGridView
+        {
+            BackgroundColor = Blanco,
+            BorderStyle = BorderStyle.None,
+            CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+            GridColor = ColorTranslator.FromHtml("#e3e3e3"),
+            ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+            EnableHeadersVisualStyles = false,
+            RowHeadersVisible = false,
+            AllowUserToAddRows = false,
+            AllowUserToDeleteRows = false,
+            AllowUserToResizeRows = false,
+            AllowUserToResizeColumns = false,
+            ReadOnly = true,
+            MultiSelect = false,
+            SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+            ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
+            ColumnHeadersHeight = 40,
+            Dock = DockStyle.Fill,
+            Font = Fuente(16)
+        };
+        tabla.RowTemplate.Height = 40;
+
+        tabla.ColumnHeadersDefaultCellStyle.BackColor = GrisClaro;
+        tabla.ColumnHeadersDefaultCellStyle.ForeColor = Grafito;
+        tabla.ColumnHeadersDefaultCellStyle.SelectionBackColor = GrisClaro;
+        tabla.ColumnHeadersDefaultCellStyle.SelectionForeColor = Grafito;
+        tabla.ColumnHeadersDefaultCellStyle.Font = Fuente(13);
+        tabla.ColumnHeadersDefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
+
+        tabla.DefaultCellStyle.BackColor = Blanco;
+        tabla.DefaultCellStyle.ForeColor = Carbon;
+        tabla.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#fff1c2");
+        tabla.DefaultCellStyle.SelectionForeColor = Carbon;
+        tabla.DefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
+        return tabla;
+    }
+
+    public static void Columna(DataGridView tabla, string nombre, string titulo, float peso, bool derecha = false)
+    {
+        DataGridViewTextBoxColumn columna = new DataGridViewTextBoxColumn
+        {
+            Name = nombre,
+            HeaderText = titulo.ToUpper(),
+            FillWeight = peso,
+            SortMode = DataGridViewColumnSortMode.NotSortable
+        };
+        DataGridViewContentAlignment alineacion = derecha ? DataGridViewContentAlignment.MiddleRight : DataGridViewContentAlignment.MiddleLeft;
+        columna.DefaultCellStyle.Alignment = alineacion;
+        columna.HeaderCell.Style.Alignment = alineacion;
+        tabla.Columns.Add(columna);
+    }
+
+    // Un cuadrito de color con su nombre (libre, ocupado, seleccionado).
+    public static Control Leyenda(string texto, Color color)
+    {
+        FlowLayoutPanel item = new FlowLayoutPanel
+        {
+            AutoSize = true,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+            Margin = new Padding(0, 10, 12, 0),
+            BackColor = GrisClaro
+        };
+
+        Panel muestra = new Panel { Size = new Size(16, 16), BackColor = color, Margin = new Padding(0, 3, 6, 0) };
+        // Con el cuadro blanco hace falta un borde para que se vea sobre el fondo gris.
+        muestra.Paint += (sender, e) =>
+        {
+            using (Pen borde = new Pen(GrisBorde))
+            {
+                e.Graphics.DrawRectangle(borde, 0, 0, muestra.Width - 1, muestra.Height - 1);
+            }
+        };
+
+        Label etiqueta = Titulo(texto, 0, 0, 13, Grafito);
+        etiqueta.Margin = new Padding(0);
+
+        item.Controls.Add(muestra);
+        item.Controls.Add(etiqueta);
+        return item;
+    }
+
+    // Mantiene una tarjeta centrada horizontalmente dentro de su contenedor.
+    public static void Centrar(Control contenedor, Control tarjeta)
+    {
+        contenedor.Resize += (sender, e) => tarjeta.Left = Math.Max(0, (contenedor.ClientSize.Width - tarjeta.Width) / 2);
+    }
+
+    // Lista desplegable plana (para elegir cupo o rol).
+    public static ComboBox Lista(int x, int y, int ancho)
+    {
+        return new ComboBox
+        {
+            Location = new Point(x, y),
+            Width = ancho,
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            FlatStyle = FlatStyle.Flat,
+            Font = Fuente(18),
+            BackColor = Blanco,
+            ForeColor = Carbon
+        };
+    }
 }
