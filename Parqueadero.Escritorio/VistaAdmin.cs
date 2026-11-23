@@ -125,7 +125,7 @@ public class VistaAdmin : Vista
 
     private Control CrearSeccionUsuarios()
     {
-        Panel seccion = new Panel { Height = 380, BackColor = Estilo.GrisClaro };
+        Panel seccion = new Panel { Height = 380, BackColor = Estilo.GrisClaro, Padding = new Padding(0, 56, 0, 0) };
 
         Button btnNuevo = Estilo.BotonAmarillo("Nuevo usuario  +", 0, 0, 220, 40);
         btnNuevo.Click += (sender, e) => NuevoUsuario();
@@ -148,7 +148,6 @@ public class VistaAdmin : Vista
         tarjetaTabla.Controls.Add(_tabla);
 
         seccion.Controls.Add(tarjetaTabla);
-        seccion.Controls.Add(new Panel { Dock = DockStyle.Top, Height = 56, BackColor = Estilo.GrisClaro });
         seccion.Controls.Add(Estilo.Titulo("Usuarios y roles", 0, 4, 30, Estilo.Carbon));
         seccion.Controls.Add(btnNuevo);
         seccion.Resize += (sender, e) => btnNuevo.Left = seccion.ClientSize.Width - btnNuevo.Width;
