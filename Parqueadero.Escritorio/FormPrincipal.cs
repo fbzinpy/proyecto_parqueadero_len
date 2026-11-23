@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Parqueadero.Core.Entidades;
 using Parqueadero.Core.Servicios;
@@ -24,15 +24,16 @@ public class FormPrincipal : Form
     private readonly Label _lblInfoSalida = new Label();
     private readonly Label _lblMensajeSalida = new Label();
 
-    // Mapa de cupos
+    // Plano de cupos
     private readonly Label _lblOcupacion = new Label();
-    private readonly FlowLayoutPanel _panelCupos = new FlowLayoutPanel();
+    private readonly PanelPlano _plano = new PanelPlano();
+    private readonly Label _lblSeleccion = new Label();
 
     public FormPrincipal(string correo, string rol)
     {
         Text = "Parqueadero";
-        ClientSize = new Size(1000, 600);
-        MinimumSize = new Size(1016, 639);
+        ClientSize = new Size(1060, 720);
+        MinimumSize = new Size(1076, 759);
         StartPosition = FormStartPosition.CenterScreen;
 
         Label lblUsuario = new Label
@@ -45,8 +46,10 @@ public class FormPrincipal : Form
 
         Controls.Add(CrearZonaEntrada());
         Controls.Add(CrearZonaSalida());
+        Controls.Add(CrearZonaSeleccion());
         CrearZonaMapa();
 
+        _plano.SeleccionCambio += (sender, e) => MostrarSeleccion();
         RefrescarMapa();
     }
 
@@ -102,25 +105,37 @@ public class FormPrincipal : Form
         return grupo;
     }
 
+    // Datos del cupo que se tocó en el plano.
+    private GroupBox CrearZonaSeleccion()
+    {
+        GroupBox grupo = new GroupBox { Text = "Cupo seleccionado", Location = new Point(10, 510), Size = new Size(320, 200) };
+
+        _lblSeleccion.Location = new Point(15, 25);
+        _lblSeleccion.Size = new Size(290, 165);
+        _lblSeleccion.Text = "Toca un cupo en el plano para ver su código, su zona y qué tan lejos está de la portería.";
+
+        grupo.Controls.Add(_lblSeleccion);
+        return grupo;
+    }
+
     private void CrearZonaMapa()
     {
         _lblOcupacion.Location = new Point(350, 45);
         _lblOcupacion.AutoSize = true;
 
-        Button btnActualizar = new Button { Text = "Actualizar", Location = new Point(890, 38), Width = 100, Height = 30 };
+        Button btnActualizar = new Button { Text = "Actualizar", Location = new Point(950, 38), Width = 100, Height = 30 };
         btnActualizar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         btnActualizar.Click += (sender, e) => RefrescarMapa();
 
-        // FlowLayoutPanel acomoda los botones uno tras otro y pasa a la siguiente fila cuando no caben.
-        _panelCupos.Location = new Point(350, 75);
-        _panelCupos.Size = new Size(640, 515);
-        _panelCupos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        _panelCupos.AutoScroll = true;
-        _panelCupos.BorderStyle = BorderStyle.FixedSingle;
+        // El plano se dibuja solo (ver PanelPlano) y se ajusta al tamaño de la ventana.
+        _plano.Location = new Point(350, 75);
+        _plano.Size = new Size(700, 635);
+        _plano.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        _plano.BorderStyle = BorderStyle.FixedSingle;
 
         Controls.Add(_lblOcupacion);
         Controls.Add(btnActualizar);
-        Controls.Add(_panelCupos);
+        Controls.Add(_plano);
     }
 
     // ---------- Eventos ----------
@@ -134,8 +149,16 @@ public class FormPrincipal : Form
         {
             ServicioParqueadero servicio = scope.ServiceProvider.GetRequiredService<ServicioParqueadero>();
 
-            // null = el cupo se asigna automáticamente.
-            (Ticket? ticket, string? error) = servicio.RegistrarEntrada(_txtPlacaEntrada.Text, tipo, null);
+            // Si hay un cupo libre seleccionado en el plano y es del tipo elegido, se usa ese.
+            // Si no, null = el cupo se asigna automáticamente.
+            Cupo? elegido = _plano.CupoSeleccionado;
+            int? cupoId = null;
+            if (elegido != null && elegido.Tipo == tipo && !_plano.EstaOcupado(elegido))
+            {
+                cupoId = elegido.Id;
+            }
+
+            (Ticket? ticket, string? error) = servicio.RegistrarEntrada(_txtPlacaEntrada.Text, tipo, cupoId);
 
             if (error != null)
             {
@@ -198,9 +221,9 @@ public class FormPrincipal : Form
         RefrescarMapa();
     }
 
-    // ---------- Mapa de cupos ----------
+    // ---------- Plano de cupos ----------
 
-    // Vuelve a crear un botón por cupo con el color según si está libre u ocupado.
+    // Lee los cupos y los ocupados de la base de datos y vuelve a dibujar el plano.
     private void RefrescarMapa()
     {
         using (IServiceScope scope = Program.Servicios.CreateScope())
@@ -209,30 +232,28 @@ public class FormPrincipal : Form
             List<Cupo> cupos = servicio.ObtenerCupos();
             EstadoParqueadero estado = servicio.CargarEstado();
 
-            // SuspendLayout/ResumeLayout: acomoda los 60 botones una sola vez al final, no uno por uno.
-            _panelCupos.SuspendLayout();
-
-            // Se liberan los botones anteriores. Dispose también los quita del panel.
-            while (_panelCupos.Controls.Count > 0)
-            {
-                _panelCupos.Controls[0].Dispose();
-            }
-
-            foreach (Cupo cupo in cupos)
-            {
-                Button boton = new Button
-                {
-                    Text = cupo.Codigo,
-                    Size = new Size(70, 40),
-                    BackColor = estado.EstaOcupado(cupo.Id) ? ColorOcupado : ColorLibre
-                };
-                _panelCupos.Controls.Add(boton);
-            }
-
-            _panelCupos.ResumeLayout();
+            _plano.Actualizar(cupos, estado);
 
             _lblOcupacion.Text = $"Ocupados: {estado.CuposOcupados} de {estado.TotalCupos}";
         }
+    }
+
+    // Muestra los datos del cupo seleccionado (se llama al tocar un cupo y al refrescar).
+    private void MostrarSeleccion()
+    {
+        Cupo? cupo = _plano.CupoSeleccionado;
+        PosicionCupo? posicion = _plano.PosicionSeleccionada;
+        if (cupo == null || posicion == null)
+        {
+            return;
+        }
+
+        string estado = _plano.EstaOcupado(cupo) ? "Ocupado" : "Libre";
+        _lblSeleccion.Text =
+            $"{cupo.Codigo}\n" +
+            $"{cupo.Tipo} · {estado}\n" +
+            $"{posicion.Zona}\n" +
+            $"A unos {PlanoParqueadero.MetrosAPorteria(posicion)} m de la portería";
     }
 
     // ---------- Ayudas de presentación ----------
