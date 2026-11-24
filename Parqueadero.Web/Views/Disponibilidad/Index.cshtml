@@ -1,0 +1,106 @@
+@model DisponibilidadViewModel
+@using Parqueadero.Core.Servicios
+@{
+    ViewData["Title"] = "¿Hay cupo?";
+    ViewData["SinMenu"] = true;
+    ViewData["Publica"] = true;
+
+    var posiciones = PlanoParqueadero.ObtenerPosiciones();
+    var cuposPorCodigo = Model.Cupos.ToDictionary(c => c.Codigo);
+    var hayCupo = Model.LibresCarro > 0;
+
+    // Punto decimal fijo: en el SVG una coma como "22,5" no es válida.
+    string N(double valor) => valor.ToString(System.Globalization.CultureInfo.InvariantCulture);
+}
+
+<div id="disponibilidad" data-url-estado="@Url.Action("Estado", "Disponibilidad")"
+     data-total-carros="@Model.TotalCarros" data-total-motos="@Model.TotalMotos">
+
+    <section class="hero hero--publico">
+        <img class="hero__foto" src="~/img/campus-usc.png" alt="" />
+        <div class="hero__velo"></div>
+        <div class="contenedor hero__contenido">
+            <div class="pila" style="gap: 12px;" aria-live="polite">
+                <p class="antetitulo">Universidad Santiago de Cali · ¿Hay cupo? · En vivo</p>
+                <p class="hero__numero" id="pub-titulo">@(hayCupo ? $"{Model.LibresCarro} {(Model.LibresCarro == 1 ? "cupo libre" : "cupos libres")}" : "Lleno para carros")</p>
+                <p class="hero__sub" id="pub-subtitulo">@(hayCupo ? "Para carro · entra sin esperar" : "Se actualiza solo: apenas salga un carro lo verás aquí")</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="seccion" style="padding-bottom: 0;">
+        <div class="contenedor">
+            <div class="resumen resumen--doble">
+                <div class="dato">
+                    <span class="etiqueta">Carros libres</span>
+                    <span class="dato__valor"><span id="pub-libres-carro">@Model.LibresCarro</span> <small>de @Model.TotalCarros</small></span>
+                </div>
+                <div class="dato">
+                    <span class="etiqueta">Motos libres</span>
+                    <span class="dato__valor"><span id="pub-libres-moto">@Model.LibresMoto</span> <small>de @Model.TotalMotos</small></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="seccion">
+        <div class="contenedor pila" style="gap: 16px;">
+            <div class="tarjeta-plano">
+                <h2 class="titulo-seccion">Plano de cupos</h2>
+
+                <svg class="plano plano--publico" id="plano-publico" viewBox="0 0 820 1000" role="group" aria-label="Plano del parqueadero">
+                    <partial name="_FondoPlano" />
+
+                    @foreach (var p in posiciones)
+                    {
+                        var cupo = cuposPorCodigo[p.Codigo];
+                        var x = N(p.X);
+                        var y = N(p.Y);
+                        var giro = $"rotate({N(p.Rotacion)} {x} {y})";
+
+                        // Carro visto desde arriba (carrocería y vidrio). Siempre está en el dibujo y el CSS solo lo
+                        // muestra cuando el cupo está ocupado, así el JavaScript solo cambia una clase.
+                        var vertical = p.Alto > p.Ancho;
+                        var cw = p.Ancho - 6;
+                        var ch = p.Alto - 6;
+                        var vw = vertical ? cw - 4 : ch * 0.35;
+                        var vh = vertical ? ch * 0.35 : ch - 4;
+                        var vx = vertical ? p.X - vw / 2 : p.X + cw / 2 - vw - 3;
+                        var vy = vertical ? p.Y - ch / 2 + 4 : p.Y - vh / 2;
+
+                        @* Solo datos del cupo: ninguna placa ni hora llega a esta página. *@
+                        <g class="cupo-plano @(cupo.Ocupado ? "cupo-plano--ocupado" : "")" data-id="@cupo.Id" data-codigo="@cupo.Codigo"
+                           data-zona="@cupo.Zona" data-metros="@cupo.Metros">
+                            <rect class="cupo-plano__borde" x="@N(p.X - p.Ancho / 2)" y="@N(p.Y - p.Alto / 2)"
+                                  width="@N(p.Ancho)" height="@N(p.Alto)" transform="@giro"
+                                  fill="transparent" stroke="#c9ccd2" stroke-width="1.5" />
+                            <g class="carro-dibujo" pointer-events="none">
+                                <rect x="@N(p.X - cw / 2)" y="@N(p.Y - ch / 2)" width="@N(cw)" height="@N(ch)" rx="3"
+                                      fill="#e9e9e9" transform="@giro" />
+                                <rect x="@N(vx)" y="@N(vy)" width="@N(vw)" height="@N(vh)" rx="2"
+                                      fill="#5a6270" transform="@giro" />
+                            </g>
+                        </g>
+                    }
+                </svg>
+
+                <div class="leyenda">
+                    <span><span class="muestra"></span>Libre</span>
+                    <span><span class="muestra muestra--ocupado"></span>Ocupado</span>
+                </div>
+            </div>
+
+            <aside class="plano-panel plano-panel--seleccion" id="panel-publico">
+                <p id="pub-ayuda">Toca un cupo del plano para ver si está libre, en qué zona queda y qué tan lejos está de la portería.</p>
+                <div id="pub-seleccion" hidden>
+                    <p class="plano-panel__codigo" id="pub-codigo"></p>
+                    <p class="plano-panel__ocupado" id="pub-estado"></p>
+                    <p id="pub-zona"></p>
+                    <p id="pub-metros" class="etiqueta"></p>
+                </div>
+            </aside>
+
+            <p class="en-vivo"><span class="en-vivo__punto" aria-hidden="true"></span><span id="pub-actualizado">Actualizado hace 0 s</span></p>
+        </div>
+    </section>
+</div>

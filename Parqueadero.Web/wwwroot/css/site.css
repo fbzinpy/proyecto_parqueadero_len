@@ -662,6 +662,53 @@ button {
   font-size: 44px;
 }
 
+/* ---------- Página pública (¿Hay cupo?) ---------- */
+.hero--publico {
+  height: 280px;
+}
+
+.hero--publico .hero__numero {
+  font-size: 64px;
+}
+
+.resumen--doble {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* El carro dibujado solo se ve cuando el cupo está ocupado. */
+.carro-dibujo {
+  display: none;
+}
+
+.cupo-plano--ocupado .carro-dibujo {
+  display: inline;
+}
+
+/* Punto amarillo "en vivo" */
+.en-vivo {
+  display: flex;
+  align-items: center;
+  gap: var(--e-8);
+  font-size: 14px;
+  color: var(--texto-2);
+}
+
+.en-vivo__punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--amarillo);
+  animation: latido 2s ease-in-out infinite;
+}
+
+@keyframes latido {
+  50% { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .en-vivo__punto { animation: none; }
+}
+
 /* ---------- Mapa de cupos ---------- */
 .tarjeta-plano {
   background: var(--tarjeta);
@@ -905,39 +952,100 @@ button {
   background: rgba(14, 15, 18, 0.72);
 }
 
-.acceso__escenario,
-.acceso__formulario {
+.acceso__contenido {
   position: relative;
-}
-
-.acceso__escenario {
-  flex: 1 1 560px;
-  min-height: 420px;
-  padding: var(--e-80) var(--margen-lateral);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: var(--e-24);
-}
-
-.acceso__formulario {
-  flex: 1 1 420px;
+  width: 100%;
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
   padding: var(--e-64) var(--margen-lateral);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--e-32);
+  gap: var(--e-40);
+}
+
+.acceso__tarjetas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-24);
+  align-items: stretch;
+}
+
+.acceso__tarjeta .etiqueta {
+  font-size: 16px;
+}
+
+.acceso__tarjeta .titulo-seccion {
+  font-size: clamp(36px, 4vw, 52px);
+}
+
+.acceso__tarjeta .texto-destacado {
+  font-size: 22px;
+  max-width: none;
+}
+
+.acceso__tarjeta .campo input {
+  font-size: 19px;
+}
+
+.acceso__tarjeta .roles {
+  font-size: 19px;
 }
 
 .acceso__tarjeta {
   display: flex;
   flex-direction: column;
-  gap: var(--e-32);
-  max-width: 520px;
+  gap: var(--e-24);
   padding: var(--e-32);
   background: var(--tarjeta);
   border: 1px solid var(--borde);
   border-top: 3px solid var(--amarillo);
+}
+
+.acceso__vivo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-24);
+  margin-top: auto;
+  padding: var(--e-24) 0;
+  border-top: 1px solid var(--borde);
+}
+
+.acceso__vivo-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.acceso__vivo-dato .etiqueta {
+  font-size: 16px;
+}
+
+.acceso__vivo-numero {
+  font-family: var(--fuente-titulo);
+  font-weight: 500;
+  font-size: 96px;
+  line-height: 0.95;
+}
+
+.boton-contorno {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 12px var(--e-24);
+  border: 2px solid var(--amarillo);
+  color: var(--amarillo);
+  font-family: var(--fuente-titulo);
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.boton-contorno:hover {
+  background: var(--amarillo);
+  color: var(--fondo);
 }
 
 .roles {
@@ -992,6 +1100,10 @@ button {
     --margen-lateral: 32px;
   }
 
+  .acceso__tarjetas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .seccion {
     padding: var(--e-40) 0;
   }
@@ -1012,6 +1124,22 @@ button {
 @media (max-width: 600px) {
   :root {
     --margen-lateral: 16px;
+  }
+
+  .hero--publico {
+    min-height: 240px;
+  }
+
+  .hero--publico .hero__numero {
+    font-size: 48px;
+  }
+
+  .resumen--doble .dato {
+    padding: var(--e-16);
+  }
+
+  .resumen--doble .dato__valor {
+    font-size: 32px;
   }
 
   .barra {
@@ -1048,13 +1176,8 @@ button {
     padding: var(--e-32) 0;
   }
 
-  .acceso__escenario,
-  .acceso__formulario {
+  .acceso__contenido {
     padding: var(--e-32) var(--margen-lateral);
-  }
-
-  .acceso__escenario {
-    min-height: 260px;
   }
 
   .buscador-form,

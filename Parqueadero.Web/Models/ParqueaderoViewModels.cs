@@ -55,3 +55,22 @@ public class AdminViewModel
     public List<Tarifa> Tarifas { get; set; } = new();
     public List<UsuarioFila> Usuarios { get; set; } = new();
 }
+
+// Página pública "¿Hay cupo?": NUNCA lleva placas, horas ni datos de usuarios.
+public class DisponibilidadViewModel
+{
+    public int LibresCarro { get; set; }
+    public int LibresMoto { get; set; }
+    public int TotalCarros { get; set; }
+    public int TotalMotos { get; set; }
+    public List<CupoPublico> Cupos { get; set; } = new();
+}
+
+public class CupoPublico
+{
+    public int Id { get; set; }
+    public string Codigo { get; set; } = string.Empty;
+    public string Zona { get; set; } = string.Empty;
+    public int Metros { get; set; }
+    public bool Ocupado { get; set; }
+}

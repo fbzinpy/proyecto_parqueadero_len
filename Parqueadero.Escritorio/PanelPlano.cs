@@ -363,7 +363,6 @@ public class PanelPlano : Panel
         Texto(g, "Bloques", 785, 264, TextoOscuro, true);
         Texto(g, "Bloques", 785, 604, TextoOscuro, true);
         Texto(g, "← Portería · entrada y salida", 8, 928, TextoOscuro, false);
-        Texto(g, "Norte · consulado", 330, 32, TextoClaro, false, true);
         Texto(g, "Fila superior · al fondo", 380, 144, TextoClaro, false, true);
         Texto(g, "Motos", 220, 246, TextoClaro, true, true);
     }

@@ -30,6 +30,12 @@
             Parqueadero USC
         </a>
 
+        @if (ViewData["Publica"] is true)
+        {
+            @* Página pública: solo el enlace para el personal. *@
+            <a class="barra__salir" asp-controller="Cuenta" asp-action="Login">Personal ›</a>
+        }
+
         @if (!sinMenu)
         {
             <nav class="barra__menu" aria-label="Principal">
