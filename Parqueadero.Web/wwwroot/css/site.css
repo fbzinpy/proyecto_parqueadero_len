@@ -78,6 +78,11 @@ button {
   outline-offset: 2px;
 }
 
+/* Un elemento con el atributo hidden debe seguir oculto aunque su clase le ponga display (flex, inline-flex...). */
+[hidden] {
+  display: none !important;
+}
+
 .solo-lector {
   position: absolute;
   width: 1px;
@@ -534,6 +539,7 @@ button {
 
 /* ---------- Tablas ---------- */
 .tabla-scroll {
+  position: relative;
   overflow-x: auto;
   background: var(--tarjeta);
   border: 1px solid var(--borde);
@@ -1126,7 +1132,8 @@ button {
     --margen-lateral: 16px;
   }
 
-  .hero--publico {
+  .hero.hero--publico {
+    height: auto;
     min-height: 240px;
   }
 
@@ -1170,6 +1177,26 @@ button {
 
   .resumen {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* La página pública tiene solo dos tarjetas: caben una al lado de la otra. */
+  .resumen.resumen--doble {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--e-8);
+  }
+
+  /* El plano se reduce a ~43 %: las letras se agrandan para que se sigan leyendo. */
+  .plano__texto {
+    font-size: 19px;
+  }
+
+  .tarjeta-plano {
+    padding: var(--e-16);
+  }
+
+  .plano-panel,
+  .vehiculos-card {
+    padding: var(--e-16);
   }
 
   .seccion {
