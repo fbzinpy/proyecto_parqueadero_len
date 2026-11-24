@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Parqueadero</title>
+    <title>@ViewData["Title"] - Parqueadero USC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
@@ -16,43 +16,43 @@
         var esAdmin = User.IsInRole("Administrador");
         // El rol que se muestra arriba a la derecha sale del usuario que inició sesión.
         var rol = esAdmin ? "Administrador" : User.IsInRole("Operador") ? "Operador" : "";
+
+        // Marca en amarillo el enlace de la página actual (acción null = cualquier acción del controlador).
+        var rutaControlador = ViewContext.RouteData.Values["controller"]?.ToString();
+        var rutaAccion = ViewContext.RouteData.Values["action"]?.ToString();
+        string Activo(string controlador, string? accion) =>
+            rutaControlador == controlador && (accion == null || rutaAccion == accion) ? "activo" : "";
     }
 
     <header class="barra">
-        @if (sinMenu)
-        {
-            <span></span>
-        }
-        else
-        {
-            <details class="menu">
-                <summary>
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16" /></svg>
-                    Menú
-                </summary>
-                <ul class="menu__lista">
-                    <li><a asp-controller="Home" asp-action="Index">Panel</a></li>
-                    <li><a asp-controller="Movimientos" asp-action="Entrada">Registrar entrada</a></li>
-                    <li><a asp-controller="Movimientos" asp-action="Salida">Registrar salida</a></li>
-                    <li><a asp-controller="Movimientos" asp-action="Historial">Historial</a></li>
-                    @* Solo el Administrador ve esta opción del menú *@
-                    @if (esAdmin)
-                    {
-                        <li><a asp-controller="Admin" asp-action="Index">Administración</a></li>
-                    }
-                    <li>
-                        @* Cerrar sesión va por POST (formulario) para que otra página no pueda cerrarla con un simple enlace *@
-                        <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post">
-                            <button type="submit" class="menu__boton">Cerrar sesión</button>
-                        </form>
-                    </li>
-                </ul>
-            </details>
-        }
+        <a class="barra__marca" asp-controller="Home" asp-action="Index">
+            <span class="barra__logo" aria-hidden="true">P</span>
+            Parqueadero USC
+        </a>
 
-        <a class="barra__marca" asp-controller="Home" asp-action="Index">Parqueadero</a>
+        @if (!sinMenu)
+        {
+            <nav class="barra__menu" aria-label="Principal">
+                <a asp-controller="Home" asp-action="Index" class="@Activo("Home", "Index")">Panel</a>
+                <a asp-controller="Movimientos" asp-action="Entrada" class="@Activo("Movimientos", "Entrada")">Registrar entrada</a>
+                <a asp-controller="Movimientos" asp-action="Salida" class="@Activo("Movimientos", "Salida")">Registrar salida</a>
+                <a asp-controller="Movimientos" asp-action="Historial" class="@Activo("Movimientos", "Historial")">Historial</a>
+                @* Solo el Administrador ve esta opción del menú *@
+                @if (esAdmin)
+                {
+                    <a asp-controller="Admin" asp-action="Index" class="@Activo("Admin", null)">Administración</a>
+                }
+            </nav>
 
-        <span class="barra__rol">@rol</span>
+            <div class="barra__usuario">
+                <span>@User.Identity?.Name</span>
+                <span class="barra__rol">@rol</span>
+                @* Cerrar sesión va por POST (formulario) para que otra página no pueda cerrarla con un simple enlace *@
+                <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post">
+                    <button type="submit" class="barra__salir">Cerrar sesión</button>
+                </form>
+            </div>
+        }
     </header>
 
     <main>
@@ -71,7 +71,7 @@
     @if (!sinMenu)
     {
         <footer class="pie">
-            <strong>Parqueadero</strong>
+            <strong>Parqueadero USC</strong>
             <span>Lenguajes de Programación · Miniproyecto 2</span>
         </footer>
     }

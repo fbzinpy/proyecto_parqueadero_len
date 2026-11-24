@@ -10,7 +10,7 @@ public class FormUsuario : Form
     private readonly TextBox _txtClave = Estilo.Campo(28, 164, 404, false);
     private readonly RadioButton _rbAdministrador = Estilo.Opcion("Administrador", 28, 236, 196, 40);
     private readonly RadioButton _rbOperador = Estilo.Opcion("Operador", 236, 236, 196, 40);
-    private readonly Label _lblError = Estilo.Texto(28, 290, 404, 44, 15, Estilo.Error);
+    private readonly Label _lblError = Estilo.Parrafo(28, 290, 404, 44, 15, Estilo.Error);
     private readonly Button _btnGuardar;
 
     // editando = null: usuario nuevo.
@@ -29,12 +29,12 @@ public class FormUsuario : Form
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        BackColor = Estilo.Blanco;
+        BackColor = Estilo.Tarjeta;
         Font = Estilo.Fuente(14);
 
         _txtClave.UseSystemPasswordChar = true;
 
-        Label correoFijo = Estilo.Texto(28, 92, 404, 30, 18, Estilo.Carbon);
+        Label correoFijo = Estilo.Parrafo(28, 92, 404, 30, 18, Estilo.Texto);
         if (editando != null)
         {
             correoFijo.Text = editando.Correo;
@@ -54,7 +54,7 @@ public class FormUsuario : Form
         _btnGuardar.Click += BtnGuardar_Click;
 
         Controls.Add(Estilo.Etiqueta(editando == null ? "Administración" : "Usuario", 28, 20));
-        Controls.Add(Estilo.Titulo(editando == null ? "Nuevo usuario" : "Editar usuario", 28, 38, 30, Estilo.Carbon));
+        Controls.Add(Estilo.Titulo(editando == null ? "Nuevo usuario" : "Editar usuario", 28, 38, 30, Estilo.Texto));
         Controls.Add(Estilo.Etiqueta(editando == null ? "Correo electrónico" : "Correo", 28, 70));
         Controls.Add(editando == null ? _txtCorreo : correoFijo);
         Controls.Add(Estilo.Etiqueta(editando == null ? "Contraseña" : "Nueva contraseña (opcional)", 28, 142));

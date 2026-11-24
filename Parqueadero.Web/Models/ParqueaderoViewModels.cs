@@ -10,7 +10,8 @@ public class PanelViewModel
     public int CuposOcupados { get; set; }
     public List<Cupo> Cupos { get; set; } = new();
     public HashSet<int> IdsOcupados { get; set; } = new();
-    public List<Ticket> VehiculosAdentro { get; set; } = new();
+    public List<Ticket> VehiculosAdentro { get; set; } = new();   // ya filtrados por tipo y búsqueda
+    public List<Ticket> TodosAdentro { get; set; } = new();       // sin filtrar: para el mapa y la tarjeta lateral
     public string? FiltroTipo { get; set; }   // null = todos, "Carro" o "Moto"
     public string? Buscar { get; set; }       // texto del buscador de placa
 }

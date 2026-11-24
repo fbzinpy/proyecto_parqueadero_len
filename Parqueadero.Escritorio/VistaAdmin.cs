@@ -13,20 +13,20 @@ public class VistaAdmin : Vista
         FlowDirection = FlowDirection.TopDown,
         WrapContents = false,
         AutoScroll = true,
-        BackColor = Estilo.GrisClaro
+        BackColor = Estilo.Fondo
     };
 
     // Resumen del día
-    private readonly Label _lblIngresos = Estilo.Titulo("", 20, 40, 40, Estilo.Carbon);
-    private readonly Label _lblAtendidos = Estilo.Titulo("", 20, 40, 40, Estilo.Carbon);
-    private readonly Label _lblOcupacion = Estilo.Titulo("", 20, 40, 40, Estilo.Carbon);
-    private readonly Label _lblOperadores = Estilo.Titulo("", 20, 40, 40, Estilo.Carbon);
+    private readonly Label _lblIngresos = Estilo.Titulo("", 20, 40, 40, Estilo.Texto);
+    private readonly Label _lblAtendidos = Estilo.Titulo("", 20, 40, 40, Estilo.Texto);
+    private readonly Label _lblOcupacion = Estilo.Titulo("", 20, 40, 40, Estilo.Texto);
+    private readonly Label _lblOperadores = Estilo.Titulo("", 20, 40, 40, Estilo.Texto);
 
     // Tarifas
-    private readonly Label _lblHoraCarro = Estilo.Texto(170, 86, 200, 26, 17, Estilo.Carbon);
-    private readonly Label _lblCuposCarro = Estilo.Texto(170, 118, 200, 26, 17, Estilo.Carbon);
-    private readonly Label _lblHoraMoto = Estilo.Texto(170, 86, 200, 26, 17, Estilo.Carbon);
-    private readonly Label _lblCuposMoto = Estilo.Texto(170, 118, 200, 26, 17, Estilo.Carbon);
+    private readonly Label _lblHoraCarro = Estilo.Parrafo(170, 86, 200, 26, 17, Estilo.Texto);
+    private readonly Label _lblCuposCarro = Estilo.Parrafo(170, 118, 200, 26, 17, Estilo.Texto);
+    private readonly Label _lblHoraMoto = Estilo.Parrafo(170, 86, 200, 26, 17, Estilo.Texto);
+    private readonly Label _lblCuposMoto = Estilo.Parrafo(170, 118, 200, 26, 17, Estilo.Texto);
     private decimal _valorCarro;
     private decimal _valorMoto;
 
@@ -61,7 +61,7 @@ public class VistaAdmin : Vista
             Height = 112,
             ColumnCount = 4,
             RowCount = 1,
-            BackColor = Estilo.GrisClaro,
+            BackColor = Estilo.Fondo,
             Margin = new Padding(0, 0, 0, 16)
         };
         for (int i = 0; i < 4; i++)
@@ -78,7 +78,7 @@ public class VistaAdmin : Vista
 
     private static Panel CrearDato(string titulo, Label valor)
     {
-        Panel dato = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Blanco, Margin = new Padding(0, 0, 12, 0) };
+        Panel dato = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Tarjeta, Margin = new Padding(0, 0, 12, 0) };
         dato.Controls.Add(Estilo.Etiqueta(titulo, 20, 16));
         dato.Controls.Add(valor);
         return dato;
@@ -86,7 +86,7 @@ public class VistaAdmin : Vista
 
     private Control CrearSeccionTarifas()
     {
-        Panel seccion = new Panel { Height = 238, BackColor = Estilo.GrisClaro, Margin = new Padding(0, 0, 0, 16) };
+        Panel seccion = new Panel { Height = 238, BackColor = Estilo.Fondo, Margin = new Padding(0, 0, 0, 16) };
 
         Button btnEditar = Estilo.BotonBorde("Editar tarifas  →", 0, 0, 200, 40, false);
         btnEditar.Click += (sender, e) => EditarTarifas();
@@ -97,7 +97,7 @@ public class VistaAdmin : Vista
             Height = 168,
             ColumnCount = 2,
             RowCount = 1,
-            BackColor = Estilo.GrisClaro
+            BackColor = Estilo.Fondo
         };
         tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
@@ -105,7 +105,7 @@ public class VistaAdmin : Vista
         tarjetas.Controls.Add(CrearTarjetaTarifa("Moto", _lblHoraMoto, _lblCuposMoto), 1, 0);
 
         seccion.Controls.Add(tarjetas);
-        seccion.Controls.Add(Estilo.Titulo("Tarifas", 0, 4, 30, Estilo.Carbon));
+        seccion.Controls.Add(Estilo.Titulo("Tarifas", 0, 4, 30, Estilo.Texto));
         seccion.Controls.Add(btnEditar);
         seccion.Resize += (sender, e) => btnEditar.Left = seccion.ClientSize.Width - btnEditar.Width;
         return seccion;
@@ -113,9 +113,9 @@ public class VistaAdmin : Vista
 
     private static Panel CrearTarjetaTarifa(string vehiculo, Label porHora, Label cupos)
     {
-        Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Blanco, Margin = new Padding(0, 0, 12, 0) };
+        Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Tarjeta, Margin = new Padding(0, 0, 12, 0) };
         tarjeta.Controls.Add(Estilo.Etiqueta("Vehículo", 20, 16));
-        tarjeta.Controls.Add(Estilo.Titulo(vehiculo, 20, 34, 32, Estilo.Carbon));
+        tarjeta.Controls.Add(Estilo.Titulo(vehiculo, 20, 34, 32, Estilo.Texto));
         tarjeta.Controls.Add(Estilo.Etiqueta("Por hora", 20, 90));
         tarjeta.Controls.Add(porHora);
         tarjeta.Controls.Add(Estilo.Etiqueta("Cupos", 20, 122));
@@ -125,7 +125,7 @@ public class VistaAdmin : Vista
 
     private Control CrearSeccionUsuarios()
     {
-        Panel seccion = new Panel { Height = 380, BackColor = Estilo.GrisClaro, Padding = new Padding(0, 56, 0, 0) };
+        Panel seccion = new Panel { Height = 380, BackColor = Estilo.Fondo, Padding = new Padding(0, 56, 0, 0) };
 
         Button btnNuevo = Estilo.BotonAmarillo("Nuevo usuario  +", 0, 0, 220, 40);
         btnNuevo.Click += (sender, e) => NuevoUsuario();
@@ -133,7 +133,7 @@ public class VistaAdmin : Vista
         Estilo.Columna(_tabla, "correo", "Correo", 50);
         Estilo.Columna(_tabla, "rol", "Rol", 25);
         Estilo.Columna(_tabla, "accion", "", 25, true);
-        _tabla.Columns["accion"]!.DefaultCellStyle.ForeColor = Estilo.AmarilloOscuro;
+        _tabla.Columns["accion"]!.DefaultCellStyle.ForeColor = Estilo.Amarillo;
         _tabla.CellClick += (sender, e) =>
         {
             if (e.RowIndex >= 0 && _tabla.Columns[e.ColumnIndex].Name == "accion" && _tabla.Rows[e.RowIndex].Tag is UsuarioFila usuario)
@@ -144,11 +144,11 @@ public class VistaAdmin : Vista
         _tabla.CellMouseEnter += (sender, e) => _tabla.Cursor = e.RowIndex >= 0 && _tabla.Columns[e.ColumnIndex].Name == "accion" ? Cursors.Hand : Cursors.Default;
 
         // La tabla va en una tarjeta blanca debajo del título.
-        Panel tarjetaTabla = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Blanco, Padding = new Padding(12) };
+        Panel tarjetaTabla = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Tarjeta, Padding = new Padding(12) };
         tarjetaTabla.Controls.Add(_tabla);
 
         seccion.Controls.Add(tarjetaTabla);
-        seccion.Controls.Add(Estilo.Titulo("Usuarios y roles", 0, 4, 30, Estilo.Carbon));
+        seccion.Controls.Add(Estilo.Titulo("Usuarios y roles", 0, 4, 30, Estilo.Texto));
         seccion.Controls.Add(btnNuevo);
         seccion.Resize += (sender, e) => btnNuevo.Left = seccion.ClientSize.Width - btnNuevo.Width;
         return seccion;

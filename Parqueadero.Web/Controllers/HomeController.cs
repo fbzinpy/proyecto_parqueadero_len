@@ -24,6 +24,7 @@ public class HomeController : Controller
         EstadoParqueadero estado = _servicio.CargarEstado();
         List<Cupo> cupos = _servicio.ObtenerCupos();
         List<Ticket> adentro = _servicio.ObtenerTicketsAbiertos();
+        List<Ticket> todosAdentro = adentro;
 
         // Filtro por tipo de vehículo (botones Todos / Carro / Moto).
         // IsDefined evita que un número cualquiera (ej: ?tipo=5) pase como tipo válido.
@@ -50,6 +51,7 @@ public class HomeController : Controller
             Cupos = cupos,
             IdsOcupados = cupos.Where(c => estado.EstaOcupado(c.Id)).Select(c => c.Id).ToHashSet(),
             VehiculosAdentro = adentro,
+            TodosAdentro = todosAdentro,
             FiltroTipo = tipo,
             Buscar = buscar
         };

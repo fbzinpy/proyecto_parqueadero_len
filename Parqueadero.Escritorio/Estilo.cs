@@ -2,20 +2,20 @@
 
 namespace Parqueadero.Escritorio;
 
-// Colores, letra y controles con el mismo estilo de la web (DESIGN.md): negro carbón, gris claro,
-// esquinas rectas, sin sombras, letra condensada en MAYÚSCULAS y amarillo solo en el botón principal.
+// Colores, letra y controles con el mismo estilo de la web ("Noche + campus USC"): fondo oscuro,
+// tarjetas planas con borde, esquinas rectas, sin sombras, letra condensada en MAYÚSCULAS y amarillo como único acento.
 public static class Estilo
 {
     public static readonly Color Amarillo = ColorTranslator.FromHtml("#ffc000");
-    public static readonly Color AmarilloOscuro = ColorTranslator.FromHtml("#917300");
-    public static readonly Color Carbon = ColorTranslator.FromHtml("#202020");
-    public static readonly Color Blanco = Color.White;
-    public static readonly Color GrisClaro = ColorTranslator.FromHtml("#f5f5f5");
-    public static readonly Color Grafito = ColorTranslator.FromHtml("#494949");
-    public static readonly Color GrisMedio = ColorTranslator.FromHtml("#7d7d7d");
-    public static readonly Color GrisBorde = ColorTranslator.FromHtml("#969696");
-    public static readonly Color Error = ColorTranslator.FromHtml("#b3261e");
-    public static readonly Color Exito = ColorTranslator.FromHtml("#1e7a3c");
+    public static readonly Color Fondo = ColorTranslator.FromHtml("#0e0f12");
+    public static readonly Color Tarjeta = ColorTranslator.FromHtml("#17191e");
+    public static readonly Color Borde = ColorTranslator.FromHtml("#262930");
+    public static readonly Color BordeCampo = ColorTranslator.FromHtml("#3a3e46");
+    public static readonly Color Texto = ColorTranslator.FromHtml("#f2f2f2");
+    public static readonly Color Texto2 = ColorTranslator.FromHtml("#a3a7b0");
+    public static readonly Color Texto3 = ColorTranslator.FromHtml("#6b7079");
+    public static readonly Color Error = ColorTranslator.FromHtml("#ff6b61");
+    public static readonly Color Exito = ColorTranslator.FromHtml("#5fd38a");
 
     // La web usa Barlow Condensed. En Windows se usa la primera de estas letras que esté instalada.
     private static readonly string Familia = ElegirFamilia();
@@ -52,7 +52,7 @@ public static class Estilo
             Location = new Point(x, y),
             AutoSize = true,
             Font = Fuente(13),
-            ForeColor = Grafito,
+            ForeColor = Texto2,
             BackColor = Color.Transparent
         };
     }
@@ -71,7 +71,7 @@ public static class Estilo
     }
 
     // Etiqueta de varias líneas con tamaño fijo (mensajes, datos del cupo).
-    public static Label Texto(int x, int y, int ancho, int alto, float tamano, Color color)
+    public static Label Parrafo(int x, int y, int ancho, int alto, float tamano, Color color)
     {
         return new Label
         {
@@ -99,8 +99,8 @@ public static class Estilo
             Width = ancho,
             Font = Fuente(18),
             BorderStyle = BorderStyle.FixedSingle,
-            BackColor = Blanco,
-            ForeColor = Carbon
+            BackColor = Tarjeta,
+            ForeColor = Texto
         };
         if (mayusculas)
         {
@@ -129,34 +129,32 @@ public static class Estilo
         boton.FlatAppearance.MouseDownBackColor = fondoHover;
         boton.MouseEnter += (sender, e) => { if (boton.Enabled) boton.ForeColor = letraHover; };
         boton.MouseLeave += (sender, e) => boton.ForeColor = letra;
-        boton.EnabledChanged += (sender, e) => boton.BackColor = boton.Enabled ? fondo : GrisBorde;
+        boton.EnabledChanged += (sender, e) => boton.BackColor = boton.Enabled ? fondo : BordeCampo;
         return boton;
     }
 
     // Botón principal: amarillo.
     public static Button BotonAmarillo(string texto, int x, int y, int ancho, int alto)
     {
-        return BotonPlano(texto, x, y, ancho, alto, Amarillo, Carbon, AmarilloOscuro, Blanco);
+        return BotonPlano(texto, x, y, ancho, alto, Amarillo, Fondo, ColorTranslator.FromHtml("#d9a300"), Fondo);
     }
 
     // Botón oscuro, para acciones importantes que no son la principal (cobrar).
     public static Button BotonOscuro(string texto, int x, int y, int ancho, int alto)
     {
-        return BotonPlano(texto, x, y, ancho, alto, Carbon, Blanco, Grafito, Blanco);
+        return BotonPlano(texto, x, y, ancho, alto, Tarjeta, Texto, Borde, Texto);
     }
 
-    // Botón solo con borde. sobreOscuro = va sobre la barra negra (borde y letra claros).
+    // Botón solo con borde.
     public static Button BotonBorde(string texto, int x, int y, int ancho, int alto, bool sobreOscuro)
     {
-        Color letra = sobreOscuro ? Blanco : Carbon;
-        Button boton = BotonPlano(texto, x, y, ancho, alto, sobreOscuro ? Carbon : Blanco, letra,
-            sobreOscuro ? Grafito : GrisClaro, letra);
+        Button boton = BotonPlano(texto, x, y, ancho, alto, Fondo, Texto, Tarjeta, Texto);
         boton.FlatAppearance.BorderSize = 1;
-        boton.FlatAppearance.BorderColor = sobreOscuro ? GrisMedio : GrisBorde;
+        boton.FlatAppearance.BorderColor = BordeCampo;
         return boton;
     }
 
-    // Opción tipo botón (Carro / Moto): la elegida se pinta de negro.
+    // Opción tipo botón (Carro / Moto): la elegida se pinta de amarillo.
     public static RadioButton Opcion(string texto, int x, int y, int ancho, int alto)
     {
         RadioButton opcion = new RadioButton
@@ -168,26 +166,26 @@ public static class Estilo
             TextAlign = ContentAlignment.MiddleCenter,
             Font = Fuente(16),
             FlatStyle = FlatStyle.Flat,
-            BackColor = Blanco,
-            ForeColor = Carbon,
+            BackColor = Tarjeta,
+            ForeColor = Texto,
             Cursor = Cursors.Hand,
             UseVisualStyleBackColor = false
         };
-        opcion.FlatAppearance.BorderColor = GrisBorde;
+        opcion.FlatAppearance.BorderColor = BordeCampo;
         opcion.FlatAppearance.BorderSize = 1;
-        opcion.FlatAppearance.CheckedBackColor = Carbon;
-        opcion.FlatAppearance.MouseOverBackColor = GrisClaro;
-        opcion.CheckedChanged += (sender, e) => opcion.ForeColor = opcion.Checked ? Blanco : Carbon;
+        opcion.FlatAppearance.CheckedBackColor = Amarillo;
+        opcion.FlatAppearance.MouseOverBackColor = Borde;
+        opcion.CheckedChanged += (sender, e) => opcion.ForeColor = opcion.Checked ? Fondo : Texto;
         return opcion;
     }
 
-    // Panel blanco que hace de tarjeta sobre el fondo gris.
-    public static Panel Tarjeta(int ancho, int alto)
+    // Panel que hace de tarjeta sobre el fondo oscuro.
+    public static Panel CrearTarjeta(int ancho, int alto)
     {
         return new Panel
         {
             Size = new Size(ancho, alto),
-            BackColor = Blanco,
+            BackColor = Tarjeta,
             Margin = new Padding(0, 0, 0, 16)
         };
     }
@@ -197,11 +195,11 @@ public static class Estilo
     // Encabezado de cada pantalla: antetítulo pequeño y título grande (como el bloque negro de la web).
     public static Panel Cabecera(string antetitulo, string titulo, out Label lblAntetitulo)
     {
-        Panel panel = new Panel { Dock = DockStyle.Top, Height = 96, BackColor = GrisClaro };
+        Panel panel = new Panel { Dock = DockStyle.Top, Height = 96, BackColor = Fondo };
         lblAntetitulo = Etiqueta(antetitulo, 0, 0);
-        lblAntetitulo.ForeColor = AmarilloOscuro;
+        lblAntetitulo.ForeColor = Amarillo;
         panel.Controls.Add(lblAntetitulo);
-        panel.Controls.Add(Titulo(titulo, 0, 22, 40, Carbon));
+        panel.Controls.Add(Titulo(titulo, 0, 22, 40, Texto));
         return panel;
     }
 
@@ -210,10 +208,10 @@ public static class Estilo
     {
         DataGridView tabla = new DataGridView
         {
-            BackgroundColor = Blanco,
+            BackgroundColor = Tarjeta,
             BorderStyle = BorderStyle.None,
             CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
-            GridColor = ColorTranslator.FromHtml("#e3e3e3"),
+            GridColor = Borde,
             ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
             EnableHeadersVisualStyles = false,
             RowHeadersVisible = false,
@@ -232,17 +230,17 @@ public static class Estilo
         };
         tabla.RowTemplate.Height = 40;
 
-        tabla.ColumnHeadersDefaultCellStyle.BackColor = GrisClaro;
-        tabla.ColumnHeadersDefaultCellStyle.ForeColor = Grafito;
-        tabla.ColumnHeadersDefaultCellStyle.SelectionBackColor = GrisClaro;
-        tabla.ColumnHeadersDefaultCellStyle.SelectionForeColor = Grafito;
+        tabla.ColumnHeadersDefaultCellStyle.BackColor = Tarjeta;
+        tabla.ColumnHeadersDefaultCellStyle.ForeColor = Texto2;
+        tabla.ColumnHeadersDefaultCellStyle.SelectionBackColor = Tarjeta;
+        tabla.ColumnHeadersDefaultCellStyle.SelectionForeColor = Texto2;
         tabla.ColumnHeadersDefaultCellStyle.Font = Fuente(13);
         tabla.ColumnHeadersDefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
 
-        tabla.DefaultCellStyle.BackColor = Blanco;
-        tabla.DefaultCellStyle.ForeColor = Carbon;
-        tabla.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#fff1c2");
-        tabla.DefaultCellStyle.SelectionForeColor = Carbon;
+        tabla.DefaultCellStyle.BackColor = Tarjeta;
+        tabla.DefaultCellStyle.ForeColor = Texto;
+        tabla.DefaultCellStyle.SelectionBackColor = Borde;
+        tabla.DefaultCellStyle.SelectionForeColor = Texto;
         tabla.DefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
         return tabla;
     }
@@ -271,20 +269,20 @@ public static class Estilo
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents = false,
             Margin = new Padding(0, 10, 12, 0),
-            BackColor = GrisClaro
+            BackColor = Fondo
         };
 
         Panel muestra = new Panel { Size = new Size(16, 16), BackColor = color, Margin = new Padding(0, 3, 6, 0) };
         // Con el cuadro blanco hace falta un borde para que se vea sobre el fondo gris.
         muestra.Paint += (sender, e) =>
         {
-            using (Pen borde = new Pen(GrisBorde))
+            using (Pen borde = new Pen(Texto2))
             {
                 e.Graphics.DrawRectangle(borde, 0, 0, muestra.Width - 1, muestra.Height - 1);
             }
         };
 
-        Label etiqueta = Titulo(texto, 0, 0, 13, Grafito);
+        Label etiqueta = Titulo(texto, 0, 0, 13, Texto2);
         etiqueta.Margin = new Padding(0);
 
         item.Controls.Add(muestra);
@@ -308,8 +306,8 @@ public static class Estilo
             DropDownStyle = ComboBoxStyle.DropDownList,
             FlatStyle = FlatStyle.Flat,
             Font = Fuente(18),
-            BackColor = Blanco,
-            ForeColor = Carbon
+            BackColor = Tarjeta,
+            ForeColor = Texto
         };
     }
 }

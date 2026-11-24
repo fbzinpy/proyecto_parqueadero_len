@@ -26,6 +26,12 @@
         document.getElementById('sel-zona').textContent = cupo.dataset.zona;
         document.getElementById('sel-metros').textContent = 'A unos ' + cupo.dataset.metros + ' m de la portería';
 
+        // Cupo ocupado: placa y hora de entrada del vehículo.
+        const ocupado = document.getElementById('sel-ocupado');
+        ocupado.hidden = libre;
+        ocupado.textContent = 'Placa ' + cupo.dataset.placa + ' · entró a las ' + cupo.dataset.hora;
+        document.getElementById('plano-panel').classList.add('plano-panel--seleccion');
+
         // Solo un cupo libre se puede usar para registrar una entrada.
         const boton = document.getElementById('sel-entrada');
         boton.hidden = !libre;

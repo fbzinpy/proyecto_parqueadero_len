@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Parqueadero.Core.Datos;
 
@@ -11,7 +11,7 @@ public class FormLogin : Form
 {
     private readonly TextBox _txtCorreo = Estilo.Campo(55, 210, 300, false);
     private readonly TextBox _txtClave = Estilo.Campo(55, 282, 300, false);
-    private readonly Label _lblError = Estilo.Texto(55, 322, 300, 40, 15, Estilo.Error);
+    private readonly Label _lblError = Estilo.Parrafo(55, 322, 300, 40, 15, Estilo.Error);
     private readonly Button _btnIngresar = Estilo.BotonAmarillo("Ingresar  →", 55, 372, 300, 48);
 
     public FormLogin()
@@ -19,17 +19,17 @@ public class FormLogin : Form
         AutoScaleDimensions = new SizeF(96F, 96F);
         AutoScaleMode = AutoScaleMode.Dpi;
 
-        Text = "Parqueadero - Iniciar sesión";
+        Text = "Parqueadero USC - Iniciar sesión";
         ClientSize = new Size(880, 520);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        BackColor = Estilo.Blanco;
+        BackColor = Estilo.Fondo;
         Font = Estilo.Fuente(14);
 
         // Se agrega primero el panel que ocupa el resto (Fill) y después el que se pega a la izquierda.
-        Panel formulario = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Blanco };
-        Panel escenario = new Panel { Dock = DockStyle.Left, Width = 470, BackColor = Estilo.Carbon };
+        Panel formulario = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Fondo };
+        Panel escenario = new Panel { Dock = DockStyle.Left, Width = 470, BackColor = Estilo.Tarjeta };
         Controls.Add(formulario);
         Controls.Add(escenario);
 
@@ -43,14 +43,14 @@ public class FormLogin : Form
     private void CrearEscenario(Panel escenario)
     {
         Label antetitulo = Estilo.Titulo("Sistema de gestión · Miniproyecto 2", 48, 70, 14, Estilo.Amarillo);
-        Label hero = Estilo.Titulo("Cada cupo" + Environment.NewLine + "bajo control", 48, 105, 58, Estilo.Blanco);
+        Label hero = Estilo.Titulo("Cada cupo" + Environment.NewLine + "bajo control", 48, 105, 58, Estilo.Texto);
 
-        Label detalle = Estilo.Texto(48, 285, 372, 90, 17, ColorTranslator.FromHtml("#c4c4c4"));
+        Label detalle = Estilo.Parrafo(48, 285, 372, 90, 17, Estilo.Texto2);
         detalle.Text = "Entradas, salidas, cobros y reportes en un solo lugar. Web y escritorio sobre la misma base de datos.";
 
         // Los dos cuadritos amarillos del acceso de la web.
         Panel punto1 = new Panel { Location = new Point(48, 440), Size = new Size(12, 12), BackColor = Estilo.Amarillo };
-        Panel punto2 = new Panel { Location = new Point(68, 440), Size = new Size(12, 12), BackColor = Estilo.Grafito };
+        Panel punto2 = new Panel { Location = new Point(68, 440), Size = new Size(12, 12), BackColor = Estilo.BordeCampo };
 
         escenario.Controls.AddRange(new Control[] { antetitulo, hero, detalle, punto1, punto2 });
     }
@@ -63,7 +63,7 @@ public class FormLogin : Form
         formulario.Controls.AddRange(new Control[]
         {
             Estilo.Etiqueta("Acceso", 55, 95),
-            Estilo.Titulo("Iniciar sesión", 55, 115, 38, Estilo.Carbon),
+            Estilo.Titulo("Iniciar sesión", 55, 115, 38, Estilo.Texto),
             Estilo.Etiqueta("Correo electrónico", 55, 188),
             _txtCorreo,
             Estilo.Etiqueta("Contraseña", 55, 260),

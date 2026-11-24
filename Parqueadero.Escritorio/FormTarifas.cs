@@ -7,7 +7,7 @@ public class FormTarifas : Form
 
     private readonly TextBox _txtCarro = Estilo.Campo(28, 92, 364, false);
     private readonly TextBox _txtMoto = Estilo.Campo(28, 164, 364, false);
-    private readonly Label _lblError = Estilo.Texto(28, 214, 364, 44, 15, Estilo.Error);
+    private readonly Label _lblError = Estilo.Parrafo(28, 214, 364, 44, 15, Estilo.Error);
 
     // guardar recibe (valorCarro, valorMoto) y devuelve null si salió bien, o el mensaje de error.
     public FormTarifas(decimal valorCarro, decimal valorMoto, Func<decimal, decimal, string?> guardar)
@@ -24,7 +24,7 @@ public class FormTarifas : Form
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        BackColor = Estilo.Blanco;
+        BackColor = Estilo.Tarjeta;
         Font = Estilo.Fuente(14);
 
         _txtCarro.Text = valorCarro.ToString("0");
@@ -37,7 +37,7 @@ public class FormTarifas : Form
         btnGuardar.Click += (sender, e) => Guardar();
 
         Controls.Add(Estilo.Etiqueta("Administración", 28, 20));
-        Controls.Add(Estilo.Titulo("Editar tarifas", 28, 38, 30, Estilo.Carbon));
+        Controls.Add(Estilo.Titulo("Editar tarifas", 28, 38, 30, Estilo.Texto));
         Controls.Add(Estilo.Etiqueta("Carro · valor por hora ($)", 28, 70));
         Controls.Add(_txtCarro);
         Controls.Add(Estilo.Etiqueta("Moto · valor por hora ($)", 28, 142));

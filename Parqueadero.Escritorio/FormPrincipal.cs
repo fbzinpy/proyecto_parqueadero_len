@@ -23,26 +23,26 @@ public class FormPrincipal : Form
     private readonly TextBox _txtPlacaEntrada = Estilo.Campo(20, 78, 296, true);
     private readonly RadioButton _rbCarro = Estilo.Opcion("Carro", 20, 140, 144, 38);
     private readonly RadioButton _rbMoto = Estilo.Opcion("Moto", 172, 140, 144, 38);
-    private readonly Label _lblMensajeEntrada = Estilo.Texto(20, 238, 296, 44, 15, Estilo.Exito);
+    private readonly Label _lblMensajeEntrada = Estilo.Parrafo(20, 238, 296, 44, 15, Estilo.Exito);
 
     // Salida
     private readonly TextBox _txtPlacaSalida = Estilo.Campo(20, 78, 196, true);
-    private readonly Label _lblInfoSalida = Estilo.Texto(20, 124, 296, 96, 16, Estilo.Carbon);
+    private readonly Label _lblInfoSalida = Estilo.Parrafo(20, 124, 296, 96, 16, Estilo.Texto);
     private readonly Button _btnCobrar = Estilo.BotonOscuro("Cobrar y dar salida  →", 20, 226, 296, 46);
-    private readonly Label _lblMensajeSalida = Estilo.Texto(20, 280, 296, 44, 15, Estilo.Exito);
+    private readonly Label _lblMensajeSalida = Estilo.Parrafo(20, 280, 296, 44, 15, Estilo.Exito);
 
     // Placa del ticket que se buscó. "Cobrar" usa esta, no lo que haya escrito después en el campo.
     private string? _placaEncontrada;
 
     // Cupo seleccionado
-    private readonly Label _lblCodigo = Estilo.Titulo("—", 20, 40, 48, Estilo.Carbon);
-    private readonly Label _lblDetalleCupo = Estilo.Texto(20, 104, 296, 96, 16, Estilo.Carbon);
+    private readonly Label _lblCodigo = Estilo.Titulo("—", 20, 40, 48, Estilo.Texto);
+    private readonly Label _lblDetalleCupo = Estilo.Parrafo(20, 104, 296, 96, 16, Estilo.Texto);
 
     // Plano y ocupación
     private readonly PanelPlano _plano = new PanelPlano();
-    private readonly Label _lblOcupacion = Estilo.Titulo("", 0, 46, 22, Estilo.Carbon);
+    private readonly Label _lblOcupacion = Estilo.Titulo("", 0, 46, 22, Estilo.Texto);
     private readonly Panel _barraRelleno = new Panel { Dock = DockStyle.Left, BackColor = Estilo.Amarillo };
-    private readonly Panel _barraFondo = new Panel { Dock = DockStyle.Bottom, Height = 6, BackColor = Color.FromArgb(222, 222, 222) };
+    private readonly Panel _barraFondo = new Panel { Dock = DockStyle.Bottom, Height = 6, BackColor = Estilo.Borde };
     private int _porcentajeOcupado;
 
     public FormPrincipal(string correo, string rol)
@@ -53,8 +53,8 @@ public class FormPrincipal : Form
         AutoScaleDimensions = new SizeF(96F, 96F);
         AutoScaleMode = AutoScaleMode.Dpi;
 
-        Text = "Parqueadero";
-        BackColor = Estilo.GrisClaro;
+        Text = "Parqueadero USC";
+        BackColor = Estilo.Fondo;
         Font = Estilo.Fuente(14);
         StartPosition = FormStartPosition.CenterScreen;
         WindowState = FormWindowState.Maximized; // Abre ocupando toda la pantalla: así caben las tarjetas y el plano se ve más grande.
@@ -65,11 +65,11 @@ public class FormPrincipal : Form
         MinimumSize = new Size(Math.Min(1100, pantalla.Width), Math.Min(640, pantalla.Height));
 
         // El orden importa al acoplar (Dock): primero lo que ocupa el resto (Fill) y después los bordes.
-        Panel cuerpo = new Panel { Dock = DockStyle.Fill, Padding = new Padding(24), BackColor = Estilo.GrisClaro };
+        Panel cuerpo = new Panel { Dock = DockStyle.Fill, Padding = new Padding(24), BackColor = Estilo.Fondo };
         Controls.Add(cuerpo);
         Controls.Add(CrearBarra(correo, rol));
 
-        Panel derecha = new Panel { Dock = DockStyle.Fill, Padding = new Padding(24, 0, 0, 0), BackColor = Estilo.GrisClaro };
+        Panel derecha = new Panel { Dock = DockStyle.Fill, Padding = new Padding(24, 0, 0, 0), BackColor = Estilo.Fondo };
         cuerpo.Controls.Add(derecha);
         cuerpo.Controls.Add(CrearColumnaIzquierda());
 
@@ -88,12 +88,12 @@ public class FormPrincipal : Form
 
     private Panel CrearBarra(string correo, string rol)
     {
-        Panel barra = new Panel { Dock = DockStyle.Top, Height = 64, BackColor = Estilo.Carbon, Padding = new Padding(24, 0, 24, 0) };
+        Panel barra = new Panel { Dock = DockStyle.Top, Height = 64, BackColor = Estilo.Fondo, Padding = new Padding(24, 0, 24, 0) };
 
-        Label marca = Estilo.Titulo("Parqueadero", 0, 0, 28, Estilo.Blanco);
+        Label marca = Estilo.Titulo("Parqueadero USC", 0, 0, 28, Estilo.Texto);
         marca.Dock = DockStyle.Left;
         marca.AutoSize = false;
-        marca.Width = 260;
+        marca.Width = 330;
         marca.TextAlign = ContentAlignment.MiddleLeft;
 
         // A la derecha: rol, correo y el botón de cerrar sesión (un panel que crece solo según su contenido).
@@ -103,12 +103,12 @@ public class FormPrincipal : Form
             AutoSize = true,
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents = false,
-            BackColor = Estilo.Carbon
+            BackColor = Estilo.Fondo
         };
 
         Label lblRol = Estilo.Titulo(rol, 0, 0, 13, Estilo.Amarillo);
         lblRol.Margin = new Padding(0, 12, 0, 0);
-        Label lblCorreo = Estilo.Titulo("", 0, 0, 16, Estilo.Blanco);
+        Label lblCorreo = Estilo.Titulo("", 0, 0, 16, Estilo.Texto);
         lblCorreo.Text = correo; // El correo se muestra tal cual, sin pasarlo a mayúsculas.
         lblCorreo.Margin = new Padding(0);
         FlowLayoutPanel datos = new FlowLayoutPanel
@@ -117,7 +117,7 @@ public class FormPrincipal : Form
             FlowDirection = FlowDirection.TopDown,
             WrapContents = false,
             Margin = new Padding(0, 0, 20, 0),
-            BackColor = Estilo.Carbon
+            BackColor = Estilo.Fondo
         };
         datos.Controls.Add(lblRol);
         datos.Controls.Add(lblCorreo);
@@ -156,7 +156,7 @@ public class FormPrincipal : Form
             FlowDirection = FlowDirection.TopDown,
             WrapContents = false,
             AutoScroll = true,
-            BackColor = Estilo.GrisClaro
+            BackColor = Estilo.Fondo
         };
 
         columna.Controls.Add(CrearZonaEntrada());
@@ -167,7 +167,7 @@ public class FormPrincipal : Form
 
     private Panel CrearZonaEntrada()
     {
-        Panel tarjeta = Estilo.Tarjeta(336, 296);
+        Panel tarjeta = Estilo.CrearTarjeta(336, 296);
 
         Button btnRegistrar = Estilo.BotonAmarillo("Registrar entrada  →", 20, 188, 296, 46);
         btnRegistrar.Click += (sender, e) => RegistrarEntrada();
@@ -184,7 +184,7 @@ public class FormPrincipal : Form
 
         tarjeta.Controls.AddRange(new Control[]
         {
-            Estilo.Titulo("Entrada", 20, 14, 28, Estilo.Carbon),
+            Estilo.Titulo("Entrada", 20, 14, 28, Estilo.Texto),
             Estilo.Etiqueta("Placa", 20, 58),
             _txtPlacaEntrada,
             Estilo.Etiqueta("Tipo de vehículo", 20, 120),
@@ -198,7 +198,7 @@ public class FormPrincipal : Form
 
     private Panel CrearZonaSalida()
     {
-        Panel tarjeta = Estilo.Tarjeta(336, 336);
+        Panel tarjeta = Estilo.CrearTarjeta(336, 336);
 
         Button btnBuscar = Estilo.BotonBorde("Buscar", 226, 78, 90, 34, false);
         btnBuscar.Click += (sender, e) => BuscarTicket();
@@ -226,7 +226,7 @@ public class FormPrincipal : Form
 
         tarjeta.Controls.AddRange(new Control[]
         {
-            Estilo.Titulo("Salida", 20, 14, 28, Estilo.Carbon),
+            Estilo.Titulo("Salida", 20, 14, 28, Estilo.Texto),
             Estilo.Etiqueta("Placa", 20, 58),
             _txtPlacaSalida,
             btnBuscar,
@@ -239,10 +239,10 @@ public class FormPrincipal : Form
 
     private Panel CrearZonaCupo()
     {
-        Panel tarjeta = Estilo.Tarjeta(336, 210);
+        Panel tarjeta = Estilo.CrearTarjeta(336, 210);
 
         _lblDetalleCupo.Text = "Toca un cupo en el plano para ver su zona y qué tan lejos está de la portería.";
-        _lblDetalleCupo.ForeColor = Estilo.Grafito;
+        _lblDetalleCupo.ForeColor = Estilo.Texto2;
 
         tarjeta.Controls.AddRange(new Control[]
         {
@@ -255,11 +255,11 @@ public class FormPrincipal : Form
 
     private Panel CrearCabeceraMapa()
     {
-        Panel cabecera = new Panel { Dock = DockStyle.Top, Height = 104, BackColor = Estilo.GrisClaro };
+        Panel cabecera = new Panel { Dock = DockStyle.Top, Height = 104, BackColor = Estilo.Fondo };
 
         // Lado izquierdo: título, cuántos hay ocupados y la barra de ocupación.
-        Panel izquierda = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.GrisClaro };
-        izquierda.Controls.Add(Estilo.Titulo("Mapa de cupos", 0, 0, 34, Estilo.Carbon));
+        Panel izquierda = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Fondo };
+        izquierda.Controls.Add(Estilo.Titulo("Mapa de cupos", 0, 0, 34, Estilo.Texto));
         izquierda.Controls.Add(_lblOcupacion);
 
         // Lado derecho: leyenda y botón Actualizar.
@@ -269,10 +269,10 @@ public class FormPrincipal : Form
             AutoSize = true,
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents = false,
-            BackColor = Estilo.GrisClaro
+            BackColor = Estilo.Fondo
         };
-        derecha.Controls.Add(CrearLeyenda("Libre", Estilo.Blanco));
-        derecha.Controls.Add(CrearLeyenda("Ocupado", Estilo.Carbon));
+        derecha.Controls.Add(CrearLeyenda("Libre", Estilo.Tarjeta));
+        derecha.Controls.Add(CrearLeyenda("Ocupado", ColorTranslator.FromHtml("#e9e9e9")));
         derecha.Controls.Add(CrearLeyenda("Seleccionado", Estilo.Amarillo));
 
         Button btnActualizar = Estilo.BotonBorde("Actualizar", 0, 0, 130, 38, false);
@@ -300,20 +300,20 @@ public class FormPrincipal : Form
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents = false,
             Margin = new Padding(0, 10, 12, 0),
-            BackColor = Estilo.GrisClaro
+            BackColor = Estilo.Fondo
         };
 
         Panel muestra = new Panel { Size = new Size(16, 16), BackColor = color, Margin = new Padding(0, 3, 6, 0) };
         // Con el cuadro blanco hace falta un borde para que se vea sobre el fondo gris.
         muestra.Paint += (sender, e) =>
         {
-            using (Pen borde = new Pen(Estilo.GrisBorde))
+            using (Pen borde = new Pen(Estilo.BordeCampo))
             {
                 e.Graphics.DrawRectangle(borde, 0, 0, muestra.Width - 1, muestra.Height - 1);
             }
         };
 
-        Label etiqueta = Estilo.Titulo(texto, 0, 0, 13, Estilo.Grafito);
+        Label etiqueta = Estilo.Titulo(texto, 0, 0, 13, Estilo.Texto2);
         etiqueta.Margin = new Padding(0);
 
         item.Controls.Add(muestra);
@@ -331,8 +331,8 @@ public class FormPrincipal : Form
         {
             ventana.AutoScaleDimensions = new SizeF(96F, 96F);
             ventana.AutoScaleMode = AutoScaleMode.Dpi;
-            ventana.Text = "Parqueadero - " + titulo;
-            ventana.BackColor = Estilo.GrisClaro;
+            ventana.Text = "Parqueadero USC - " + titulo;
+            ventana.BackColor = Estilo.Fondo;
             ventana.Font = Estilo.Fuente(14);
             ventana.StartPosition = FormStartPosition.CenterParent;
             ventana.ShowInTaskbar = false;
@@ -528,7 +528,7 @@ public class FormPrincipal : Form
         TipoVehiculo tipoElegido = _rbCarro.Checked ? TipoVehiculo.Carro : TipoVehiculo.Moto;
 
         _lblCodigo.Text = cupo.Codigo;
-        _lblDetalleCupo.ForeColor = Estilo.Carbon;
+        _lblDetalleCupo.ForeColor = Estilo.Texto;
         _lblDetalleCupo.Text =
             $"{cupo.Tipo} · {(ocupado ? "Ocupado" : "Libre")}\n" +
             $"{posicion.Zona}\n" +

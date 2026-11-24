@@ -680,180 +680,120 @@ namespace Parqueadero.Core.Migrations
                         new
                         {
                             Id = 76,
-                            Codigo = "A-76",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 77,
-                            Codigo = "A-77",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 78,
-                            Codigo = "A-78",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 79,
-                            Codigo = "A-79",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 80,
-                            Codigo = "A-80",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 81,
-                            Codigo = "A-81",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 82,
-                            Codigo = "A-82",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 83,
-                            Codigo = "A-83",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 84,
-                            Codigo = "A-84",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 85,
-                            Codigo = "A-85",
-                            Tipo = 0
-                        },
-                        new
-                        {
-                            Id = 86,
                             Codigo = "M-01",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 87,
+                            Id = 77,
                             Codigo = "M-02",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 88,
+                            Id = 78,
                             Codigo = "M-03",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 89,
+                            Id = 79,
                             Codigo = "M-04",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 90,
+                            Id = 80,
                             Codigo = "M-05",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 91,
+                            Id = 81,
                             Codigo = "M-06",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 92,
+                            Id = 82,
                             Codigo = "M-07",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 93,
+                            Id = 83,
                             Codigo = "M-08",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 94,
+                            Id = 84,
                             Codigo = "M-09",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 95,
+                            Id = 85,
                             Codigo = "M-10",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 96,
+                            Id = 86,
                             Codigo = "M-11",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 97,
+                            Id = 87,
                             Codigo = "M-12",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 98,
+                            Id = 88,
                             Codigo = "M-13",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 99,
+                            Id = 89,
                             Codigo = "M-14",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 100,
+                            Id = 90,
                             Codigo = "M-15",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 101,
+                            Id = 91,
                             Codigo = "M-16",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 102,
+                            Id = 92,
                             Codigo = "M-17",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 103,
+                            Id = 93,
                             Codigo = "M-18",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 104,
+                            Id = 94,
                             Codigo = "M-19",
                             Tipo = 1
                         },
                         new
                         {
-                            Id = 105,
+                            Id = 95,
                             Codigo = "M-20",
                             Tipo = 1
                         });

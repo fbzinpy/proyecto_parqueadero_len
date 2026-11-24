@@ -8,12 +8,12 @@ namespace Parqueadero.Escritorio;
 public class VistaHistorial : Vista
 {
     private readonly Label _lblCantidad;
-    private readonly Label _lblVacio = Estilo.Texto(0, 0, 400, 30, 16, Estilo.Grafito);
+    private readonly Label _lblVacio = Estilo.Parrafo(0, 0, 400, 30, 16, Estilo.Texto2);
     private readonly DataGridView _tabla = Estilo.Tabla();
 
     public VistaHistorial(FormPrincipal shell) : base(shell)
     {
-        Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Blanco, Padding = new Padding(20) };
+        Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Estilo.Tarjeta, Padding = new Padding(20) };
         Controls.Add(tarjeta);
         Controls.Add(Estilo.Cabecera("", "Historial", out _lblCantidad));
 

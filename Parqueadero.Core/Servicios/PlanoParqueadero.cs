@@ -43,16 +43,16 @@ public static class PlanoParqueadero
             }
         }
 
-        // A-56 a A-80: costado de los árboles.
-        for (int k = 0; k < 25; k++)
+        // A-56 a A-70: costado de los árboles.
+        for (int k = 0; k < 15; k++)
         {
-            lista.Add(CarroHorizontal(655, 140 + k * 25, "Costado de los árboles · sombra"));
+            lista.Add(CarroHorizontal(645, 175 + k * 39, "Costado de los árboles · sombra"));
         }
 
-        // A-81 a A-85: junto a la portería, vertical.
+        // A-71 a A-75: junto a la portería, vertical.
         for (int i = 0; i < 5; i++)
         {
-            lista.Add(CarroVertical(280 + i * 34, 885, "Junto a la portería · salida rápida"));
+            lista.Add(CarroVertical(420 + i * 34, 862, "Junto a la portería · salida rápida"));
         }
 
         // M-01 a M-20: zona de motos (columnas X = 190 y 250).
@@ -66,8 +66,8 @@ public static class PlanoParqueadero
             }
         }
 
-        // Los códigos A-01 a A-85 se asignan en el orden en que se agregaron.
-        for (int i = 0; i < 85; i++)
+        // Los códigos A-01 a A-75 se asignan en el orden en que se agregaron.
+        for (int i = 0; i < 75; i++)
         {
             lista[i] = lista[i] with { Codigo = $"A-{i + 1:00}" };
         }

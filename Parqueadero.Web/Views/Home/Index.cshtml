@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Panel";
 
-    var libres = Model.TotalCupos - Model.CuposOcupados;
     var porcentaje = Model.TotalCupos == 0 ? 0 : Model.CuposOcupados * 100 / Model.TotalCupos;
     var ahora = DateTime.Now;
 
@@ -15,30 +14,148 @@
     var libresCarro = Model.Cupos.Count(c => c.Tipo == TipoVehiculo.Carro && !Model.IdsOcupados.Contains(c.Id));
     var libresMoto = Model.Cupos.Count(c => c.Tipo == TipoVehiculo.Moto && !Model.IdsOcupados.Contains(c.Id));
 
+    // Vehículo que ocupa cada cupo (sin filtrar), para mostrar placa y hora al seleccionarlo.
+    var ticketPorCupo = Model.TodosAdentro
+        .Where(t => t.Cupo != null)
+        .GroupBy(t => t.Cupo!.Codigo)
+        .ToDictionary(g => g.Key, g => g.First());
+
     // Punto decimal fijo: en el SVG una coma como "22,5" no es válida.
     string N(double valor) => valor.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }
 
-<section class="seccion seccion--oscura">
-    <div class="contenedor pila">
-        <p class="antetitulo">Turno operador</p>
-        <h1 class="titulo-hero">@Model.CuposOcupados de @Model.TotalCupos<br />cupos ocupados</h1>
-
-        <div class="pila" style="gap: 8px;">
-            <div class="ocupacion" role="img" aria-label="@porcentaje % de ocupación">
-                <div class="ocupacion__relleno" style="width: @porcentaje%;"></div>
-            </div>
-            <span class="etiqueta">@libres cupos libres</span>
+<section class="hero">
+    <img class="hero__foto" src="~/img/campus-usc.png" alt="" />
+    <div class="hero__velo"></div>
+    <div class="contenedor hero__contenido">
+        <div class="pila" style="gap: 12px;">
+            <p class="antetitulo">Universidad Santiago de Cali · Turno de hoy · En vivo</p>
+            <p class="hero__numero">@Model.CuposOcupados <span>/ @Model.TotalCupos</span></p>
+            <p class="hero__sub">Cupos ocupados · @porcentaje%</p>
         </div>
-
-        <div class="acciones" style="margin-top: 16px;">
+        <div class="hero__acciones">
             <a class="boton-amarillo" asp-controller="Movimientos" asp-action="Entrada">Registrar entrada <span aria-hidden="true">→</span></a>
-            <a class="enlace-flecha enlace-flecha--grande" asp-controller="Movimientos" asp-action="Salida">Registrar salida <span aria-hidden="true">→</span></a>
+            <a class="boton-blanco" asp-controller="Movimientos" asp-action="Salida">Registrar salida</a>
         </div>
     </div>
 </section>
 
-<section class="seccion" id="vehiculos">
+<section class="seccion" style="padding-bottom: 0;">
+    <div class="contenedor">
+        <div class="resumen">
+            <div class="dato">
+                <span class="etiqueta">Carros libres</span>
+                <span class="dato__valor">@libresCarro <small>de @totalCarros</small></span>
+            </div>
+            <div class="dato">
+                <span class="etiqueta">Motos libres</span>
+                <span class="dato__valor">@libresMoto <small>de @totalMotos</small></span>
+            </div>
+            <div class="dato">
+                <span class="etiqueta">Ocupación</span>
+                <span class="dato__valor">@porcentaje%</span>
+                <div class="ocupacion" role="img" aria-label="@porcentaje % de ocupación">
+                    <div class="ocupacion__relleno" style="width: @porcentaje%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor">
+        <div class="plano-contenedor">
+            <div class="tarjeta-plano">
+                <div class="cabecera-seccion">
+                    <h2 class="titulo-seccion">Mapa de cupos</h2>
+                    <div class="leyenda">
+                        <span><span class="muestra"></span>Libre</span>
+                        <span><span class="muestra muestra--ocupado"></span>Ocupado</span>
+                        <span><span class="muestra muestra--seleccionado"></span>Seleccionado</span>
+                    </div>
+                </div>
+
+                @* El plano es un solo SVG: se escala con el ancho de la pantalla (tablet y celular). *@
+                <svg class="plano" id="plano" viewBox="0 0 820 1000" role="group" aria-label="Plano del parqueadero">
+                    <partial name="_FondoPlano" />
+
+                    @foreach (var p in posiciones)
+                    {
+                        var cupo = cuposPorCodigo[p.Codigo];
+                        var ocupado = Model.IdsOcupados.Contains(cupo.Id);
+                        var x = N(p.X);
+                        var y = N(p.Y);
+                        var giro = $"rotate({N(p.Rotacion)} {x} {y})";
+                        var metros = PlanoParqueadero.MetrosAPorteria(p);
+                        ticketPorCupo.TryGetValue(p.Codigo, out var ticket);
+
+                        <g class="cupo-plano" data-id="@cupo.Id" data-codigo="@p.Codigo" data-tipo="@cupo.Tipo"
+                           data-estado="@(ocupado ? "Ocupado" : "Libre")" data-zona="@p.Zona" data-metros="@metros"
+                           data-placa="@ticket?.Placa" data-hora="@(ticket?.HoraEntrada.ToString("HH:mm"))">
+                            <rect class="cupo-plano__borde" x="@N(p.X - p.Ancho / 2)" y="@N(p.Y - p.Alto / 2)"
+                                  width="@N(p.Ancho)" height="@N(p.Alto)" transform="@giro"
+                                  fill="transparent" stroke="#c9ccd2" stroke-width="1.5" />
+                            @if (ocupado)
+                            {
+                                // Carro visto desde arriba: carrocería y vidrio, un poco más chicos que el cupo.
+                                var vertical = p.Alto > p.Ancho;
+                                var cw = p.Ancho - 6;
+                                var ch = p.Alto - 6;
+                                var vw = vertical ? cw - 4 : ch * 0.35;
+                                var vh = vertical ? ch * 0.35 : ch - 4;
+                                var vx = vertical ? p.X - vw / 2 : p.X + cw / 2 - vw - 3;
+                                var vy = vertical ? p.Y - ch / 2 + 4 : p.Y - vh / 2;
+                                <rect x="@N(p.X - cw / 2)" y="@N(p.Y - ch / 2)" width="@N(cw)" height="@N(ch)" rx="3"
+                                      fill="#e9e9e9" transform="@giro" pointer-events="none" />
+                                <rect x="@N(vx)" y="@N(vy)" width="@N(vw)" height="@N(vh)" rx="2"
+                                      fill="#5a6270" transform="@giro" pointer-events="none" />
+                            }
+                        </g>
+                    }
+                </svg>
+            </div>
+
+            <div class="lateral">
+                <aside class="plano-panel" id="plano-panel" data-url-entrada="@Url.Action("Entrada", "Movimientos")">
+                    <p class="etiqueta">Cupo seleccionado</p>
+                    <div class="plano-panel__detalle">
+                        <p id="plano-ayuda" class="texto-destacado" style="font-size: 16px;">Toca un cupo en el mapa para ver su código, en qué zona queda y qué tan lejos está de la portería.</p>
+                        <div id="plano-seleccion" hidden>
+                            <p class="plano-panel__codigo" id="sel-codigo"></p>
+                            <p class="etiqueta" id="sel-estado"></p>
+                            <p id="sel-zona"></p>
+                            <p id="sel-metros" class="etiqueta"></p>
+                            <p id="sel-ocupado" class="plano-panel__ocupado" hidden></p>
+                            <a class="boton-amarillo" id="sel-entrada" href="#" hidden>Registrar entrada aquí <span aria-hidden="true">→</span></a>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="vehiculos-card">
+                    <div class="cabecera-seccion">
+                        <h2 class="etiqueta">Vehículos dentro</h2>
+                        <a class="enlace-flecha" href="#vehiculos">Ver todos <span aria-hidden="true">→</span></a>
+                    </div>
+                    @if (Model.TodosAdentro.Count == 0)
+                    {
+                        <p class="etiqueta">No hay vehículos adentro.</p>
+                    }
+                    else
+                    {
+                        <ul>
+                            @foreach (var t in Model.TodosAdentro.OrderByDescending(t => t.HoraEntrada).Take(6))
+                            {
+                                <li><strong>@t.Placa</strong><span>@t.Cupo?.Codigo</span><span>@t.HoraEntrada.ToString("HH:mm")</span></li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="seccion" id="vehiculos" style="padding-top: 0;">
     <div class="contenedor pila pila--amplia">
         <div class="cabecera-seccion">
             <h2 class="titulo-seccion">Vehículos dentro</h2>
@@ -101,74 +218,5 @@
                 </table>
             </div>
         }
-    </div>
-</section>
-
-<section class="seccion seccion--gris">
-    <div class="contenedor pila pila--amplia">
-        <div class="cabecera-seccion">
-            <h2 class="titulo-seccion">Mapa de cupos</h2>
-            <div class="leyenda">
-                <span><span class="muestra"></span>Libre</span>
-                <span><span class="muestra muestra--ocupado"></span>Ocupado</span>
-                <span><span class="muestra muestra--seleccionado"></span>Seleccionado</span>
-            </div>
-        </div>
-
-        @* El plano es un solo SVG: se escala con el ancho de la pantalla (tablet y celular). *@
-        <div class="plano-contenedor">
-            <svg class="plano" id="plano" viewBox="0 0 820 1000" role="group" aria-label="Plano del parqueadero">
-                <partial name="_FondoPlano" />
-
-                @foreach (var p in posiciones)
-                {
-                    var cupo = cuposPorCodigo[p.Codigo];
-                    var ocupado = Model.IdsOcupados.Contains(cupo.Id);
-                    var x = N(p.X);
-                    var y = N(p.Y);
-                    var giro = $"rotate({N(p.Rotacion)} {x} {y})";
-                    var metros = PlanoParqueadero.MetrosAPorteria(p);
-
-                    <g class="cupo-plano" data-id="@cupo.Id" data-codigo="@p.Codigo" data-tipo="@cupo.Tipo"
-                       data-estado="@(ocupado ? "Ocupado" : "Libre")" data-zona="@p.Zona" data-metros="@metros">
-                        <rect class="cupo-plano__borde" x="@N(p.X - p.Ancho / 2)" y="@N(p.Y - p.Alto / 2)"
-                              width="@N(p.Ancho)" height="@N(p.Alto)" transform="@giro"
-                              fill="transparent" stroke="#ffffff" stroke-width="2" />
-                        @if (ocupado)
-                        {
-                            // Carro visto desde arriba: carrocería y vidrio, un poco más chicos que el cupo.
-                            var vertical = p.Alto > p.Ancho;
-                            var cw = p.Ancho - 6;
-                            var ch = p.Alto - 6;
-                            var vw = vertical ? cw - 4 : ch * 0.35;
-                            var vh = vertical ? ch * 0.35 : ch - 4;
-                            var vx = vertical ? p.X - vw / 2 : p.X + cw / 2 - vw - 3;
-                            var vy = vertical ? p.Y - ch / 2 + 4 : p.Y - vh / 2;
-                            <rect x="@N(p.X - cw / 2)" y="@N(p.Y - ch / 2)" width="@N(cw)" height="@N(ch)" rx="3"
-                                  fill="#f2f2f2" transform="@giro" pointer-events="none" />
-                            <rect x="@N(vx)" y="@N(vy)" width="@N(vw)" height="@N(vh)" rx="2"
-                                  fill="#9aa3ad" transform="@giro" pointer-events="none" />
-                        }
-                    </g>
-                }
-            </svg>
-
-            <aside class="plano-panel" id="plano-panel" data-url-entrada="@Url.Action("Entrada", "Movimientos")">
-                <p class="etiqueta">Libres ahora</p>
-                <p class="plano-panel__cifra">@libresCarro de @totalCarros carros</p>
-                <p class="plano-panel__cifra">@libresMoto de @totalMotos motos</p>
-
-                <div class="plano-panel__detalle">
-                    <p id="plano-ayuda">Toca un cupo en el mapa para ver su código, en qué zona queda y qué tan lejos está de la portería.</p>
-                    <div id="plano-seleccion" hidden>
-                        <p class="plano-panel__codigo" id="sel-codigo"></p>
-                        <p class="etiqueta" id="sel-estado"></p>
-                        <p id="sel-zona"></p>
-                        <p id="sel-metros"></p>
-                        <a class="boton-amarillo" id="sel-entrada" href="#" hidden>Registrar entrada aquí <span aria-hidden="true">→</span></a>
-                    </div>
-                </div>
-            </aside>
-        </div>
     </div>
 </section>

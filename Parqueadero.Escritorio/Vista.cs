@@ -10,7 +10,7 @@ public abstract class Vista : UserControl
     {
         Shell = shell;
         Dock = DockStyle.Fill;
-        BackColor = Estilo.GrisClaro;
+        BackColor = Estilo.Fondo;
         Padding = new Padding(32, 24, 32, 24);
     }
 

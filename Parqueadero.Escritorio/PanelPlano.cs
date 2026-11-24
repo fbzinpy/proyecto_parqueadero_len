@@ -8,12 +8,14 @@ namespace Parqueadero.Escritorio;
 // Dibuja en las coordenadas del plano (820 x 1000) y las escala para que quepa en el panel.
 public class PanelPlano : Panel
 {
-    private static readonly Color Asfalto = ColorTranslator.FromHtml("#3b3d40");
-    private static readonly Color Pasto = ColorTranslator.FromHtml("#8fae6a");
-    private static readonly Color Anden = ColorTranslator.FromHtml("#d9d6cf");
-    private static readonly Color EdificioBorde = ColorTranslator.FromHtml("#9a9a98");
-    private static readonly Color EdificioRelleno = ColorTranslator.FromHtml("#b0b0ad");
-    private static readonly Color TextoOscuro = ColorTranslator.FromHtml("#1e2a4a");
+    private static readonly Color Asfalto = ColorTranslator.FromHtml("#24272d");
+    private static readonly Color Pasto = ColorTranslator.FromHtml("#2c3a2a");
+    private static readonly Color Anden = ColorTranslator.FromHtml("#16181c");
+    private static readonly Color EdificioBorde = ColorTranslator.FromHtml("#2b2e35");
+    private static readonly Color EdificioRelleno = ColorTranslator.FromHtml("#33373f");
+    private static readonly Color TextoOscuro = ColorTranslator.FromHtml("#a3a7b0");
+    private static readonly Color GrisPlano = ColorTranslator.FromHtml("#6b7079");
+    private static readonly Color TextoClaro = ColorTranslator.FromHtml("#f2f2f2");
     private static readonly Color Amarillo = ColorTranslator.FromHtml("#ffc000");
 
     // (x, y, radio) de cada árbol
@@ -166,7 +168,15 @@ public class PanelPlano : Panel
         float mitadAncho = (float)p.Ancho / 2;
         float mitadAlto = (float)p.Alto / 2;
 
-        using (Pen borde = new Pen(seleccionado ? Amarillo : Color.White, seleccionado ? 3f : 2f))
+        if (seleccionado)
+        {
+            using (SolidBrush relleno = new SolidBrush(Color.FromArgb(77, 255, 192, 0)))
+            {
+                g.FillRectangle(relleno, -mitadAncho, -mitadAlto, (float)p.Ancho, (float)p.Alto);
+            }
+        }
+
+        using (Pen borde = new Pen(seleccionado ? Amarillo : ColorTranslator.FromHtml("#c9ccd2"), seleccionado ? 3f : 1.5f))
         {
             g.DrawRectangle(borde, -mitadAncho, -mitadAlto, (float)p.Ancho, (float)p.Alto);
         }
@@ -183,13 +193,13 @@ public class PanelPlano : Panel
             float vy = vertical ? -ch / 2 + 4 : -vh / 2;
 
             using (GraphicsPath carroceria = RectanguloRedondeado(-cw / 2, -ch / 2, cw, ch, 3))
-            using (SolidBrush blanco = new SolidBrush(ColorTranslator.FromHtml("#f2f2f2")))
+            using (SolidBrush blanco = new SolidBrush(ColorTranslator.FromHtml("#e9e9e9")))
             {
                 g.FillPath(blanco, carroceria);
             }
 
             using (GraphicsPath vidrio = RectanguloRedondeado(vx, vy, vw, vh, 2))
-            using (SolidBrush gris = new SolidBrush(ColorTranslator.FromHtml("#9aa3ad")))
+            using (SolidBrush gris = new SolidBrush(ColorTranslator.FromHtml("#5a6270")))
             {
                 g.FillPath(gris, vidrio);
             }
@@ -237,7 +247,7 @@ public class PanelPlano : Panel
     // Línea blanca punteada (carriles).
     private static void Carril(Graphics g, float x1, float y1, float x2, float y2, float raya, float espacio)
     {
-        using (Pen lapiz = new Pen(Color.White, 2f))
+        using (Pen lapiz = new Pen(GrisPlano, 2f))
         {
             lapiz.DashPattern = new[] { raya / 2, espacio / 2 }; // El patrón se mide en múltiplos del grosor (2).
             g.DrawLine(lapiz, x1, y1, x2, y2);
@@ -246,8 +256,8 @@ public class PanelPlano : Panel
 
     private static void Edificio(Graphics g, float x, float y, float ancho, float alto, float margen)
     {
-        Rellenar(g, "#9a9a98", x, y, ancho, alto);
-        Rellenar(g, "#b0b0ad", x + margen, y + margen, ancho - margen * 2, alto - margen * 2);
+        Rellenar(g, "#2b2e35", x, y, ancho, alto);
+        Rellenar(g, "#33373f", x + margen, y + margen, ancho - margen * 2, alto - margen * 2);
     }
 
     // sobreAsfalto: el texto va sobre un recuadro del color del asfalto, para que la línea punteada no lo atraviese
@@ -279,14 +289,14 @@ public class PanelPlano : Panel
     private static void DibujarFondo(Graphics g)
     {
         // Calle norte
-        Rellenar(g, "#8fae6a", 128, 0, 570, 8);
-        Rellenar(g, "#3b3d40", 128, 8, 570, 40);
+        Rellenar(g, "#2c3a2a", 128, 0, 570, 8);
+        Rellenar(g, "#24272d", 128, 8, 570, 40);
         Carril(g, 140, 28, 690, 28, 14, 12);
-        Rellenar(g, "#8fae6a", 128, 48, 570, 8);
+        Rellenar(g, "#2c3a2a", 128, 48, 570, 8);
 
         // Pasto de las esquinas
-        Rellenar(g, "#8fae6a", 0, 0, 110, 150);
-        Rellenar(g, "#8fae6a", 720, 0, 100, 70);
+        Rellenar(g, "#2c3a2a", 0, 0, 110, 150);
+        Rellenar(g, "#2c3a2a", 720, 0, 100, 70);
 
         // Edificios
         Edificio(g, 4, 170, 114, 240, 8);
@@ -295,27 +305,27 @@ public class PanelPlano : Panel
         Edificio(g, 744, 460, 76, 280, 6);
 
         // Lote: borde de pasto y asfalto encima
-        Poligono(g, "#8fae6a", new PointF(120, 52), new PointF(698, 52), new PointF(702, 784), new PointF(572, 912), new PointF(250, 934), new PointF(120, 878));
-        Poligono(g, "#3b3d40", new PointF(130, 60), new PointF(690, 60), new PointF(692, 780), new PointF(565, 905), new PointF(250, 925), new PointF(130, 870));
+        Poligono(g, "#2c3a2a", new PointF(120, 52), new PointF(698, 52), new PointF(702, 784), new PointF(572, 913), new PointF(120, 913));
+        Poligono(g, "#24272d", new PointF(130, 60), new PointF(690, 60), new PointF(692, 780), new PointF(565, 905), new PointF(130, 905));
 
         // Portería
-        Rellenar(g, "#3b3d40", 0, 840, 136, 64);
-        Rellenar(g, "#8fae6a", 0, 832, 132, 8);
-        Rellenar(g, "#8fae6a", 0, 904, 128, 8);
+        Rellenar(g, "#24272d", 0, 840, 136, 64);
+        Rellenar(g, "#2c3a2a", 0, 832, 132, 8);
+        Rellenar(g, "#2c3a2a", 0, 904, 128, 8);
         Carril(g, 0, 872, 130, 872, 12, 10);
 
         // Pasto abajo a la derecha
-        Poligono(g, "#8fae6a", new PointF(610, 1000), new PointF(700, 900), new PointF(820, 900), new PointF(820, 1000));
+        Poligono(g, "#2c3a2a", new PointF(610, 1000), new PointF(700, 900), new PointF(820, 900), new PointF(820, 1000));
 
         // Carriles del lote
         Carril(g, 150, 140, 640, 140, 14, 12);
         Carril(g, 312, 230, 312, 700, 14, 12);
         Carril(g, 449, 230, 449, 700, 14, 12);
         Carril(g, 600, 200, 600, 760, 14, 12);
-        Carril(g, 350, 820, 560, 820, 14, 12);
+        Carril(g, 400, 820, 576, 820, 14, 12);
 
         // Zona de motos (rectángulo punteado)
-        using (Pen lapiz = new Pen(Color.White, 2f))
+        using (Pen lapiz = new Pen(GrisPlano, 2f))
         {
             lapiz.DashPattern = new[] { 3f, 3f };
             g.DrawRectangle(lapiz, 148, 228, 144, 466);
@@ -336,9 +346,9 @@ public class PanelPlano : Panel
         // Árboles: 3 círculos superpuestos
         foreach ((int x, int y, int r) in Arboles)
         {
-            Circulo(g, "#5f8f3e", x, y, r);
-            Circulo(g, "#77a64d", x, y - 6, r * 0.65f);
-            Circulo(g, "#8fbf5f", x, y - 10, r * 0.3f);
+            Circulo(g, "#344a30", x, y, r);
+            Circulo(g, "#41603a", x, y - 6, r * 0.65f);
+            Circulo(g, "#557a4a", x, y - 10, r * 0.3f);
         }
 
         // Flecha de la portería
@@ -353,9 +363,9 @@ public class PanelPlano : Panel
         Texto(g, "Bloques", 785, 264, TextoOscuro, true);
         Texto(g, "Bloques", 785, 604, TextoOscuro, true);
         Texto(g, "← Portería · entrada y salida", 8, 928, TextoOscuro, false);
-        Texto(g, "Norte · consulado", 330, 32, Color.White, false, true);
-        Texto(g, "Fila superior · al fondo", 380, 144, Color.White, false, true);
-        Texto(g, "Motos", 220, 246, Color.White, true, true);
+        Texto(g, "Norte · consulado", 330, 32, TextoClaro, false, true);
+        Texto(g, "Fila superior · al fondo", 380, 144, TextoClaro, false, true);
+        Texto(g, "Motos", 220, 246, TextoClaro, true, true);
     }
 
     private static void Circulo(Graphics g, string color, float x, float y, float r)
